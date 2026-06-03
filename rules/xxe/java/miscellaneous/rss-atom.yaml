@@ -1,0 +1,14 @@
+rules:
+  - id: xxe-sink-rome-syndfeedinput
+    patterns:
+      - pattern: $INPUT.build(...)
+      - metavariable-type:
+          metavariable: $INPUT
+          types:
+            - com.rometools.rome.io.SyndFeedInput
+    message: "XXE sink: ROME SyndFeedInput.build() can process external entities in RSS/Atom feeds"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

@@ -1,0 +1,53 @@
+rules:
+  - id: xxe-sink-spring-xmlutils-parse
+    pattern: org.springframework.util.xml.XmlUtils.parse(...)
+    message: "XXE sink: Spring XmlUtils.parse() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-spring-jaxb2marshaller-unmarshal
+    patterns:
+      - pattern: $MARSHALLER.unmarshal(...)
+      - metavariable-type:
+          metavariable: $MARSHALLER
+          types:
+            - org.springframework.oxm.jaxb.Jaxb2Marshaller
+      - pattern-not: $MARSHALLER.unmarshal(new javax.xml.transform.stream.StreamSource(...))
+      - pattern-not: $MARSHALLER.unmarshal(new javax.xml.transform.sax.SAXSource(...))
+    message: "XXE sink: Spring Jaxb2Marshaller.unmarshal() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-spring-xmlbeandefinitionreader
+    patterns:
+      - pattern: $READER.loadBeanDefinitions(...)
+      - metavariable-type:
+          metavariable: $READER
+          types:
+            - org.springframework.beans.factory.xml.XmlBeanDefinitionReader
+    message: "XXE sink: Spring XmlBeanDefinitionReader.loadBeanDefinitions() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-spring-domdocumentparser
+    patterns:
+      - pattern: $LOADER.loadDocument(...)
+      - metavariable-type:
+          metavariable: $LOADER
+          types:
+            - org.springframework.beans.factory.xml.DefaultDocumentLoader
+    message: "XXE sink: Spring DefaultDocumentLoader.loadDocument() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

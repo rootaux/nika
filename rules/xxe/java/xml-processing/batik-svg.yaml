@@ -1,0 +1,14 @@
+rules:
+  - id: xxe-sink-batik-saxsvgdocumentfactory
+    patterns:
+      - pattern: $FACTORY.createDocument(...)
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - org.apache.batik.anim.dom.SAXSVGDocumentFactory
+    message: "XXE sink: Apache Batik SAXSVGDocumentFactory can process external entities in SVG"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

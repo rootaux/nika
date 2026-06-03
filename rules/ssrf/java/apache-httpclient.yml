@@ -1,0 +1,76 @@
+rules:
+  - id: java-ssrf-sinks-apache-httpclient
+    message: >-
+      Potentially unsafe outbound network request using Apache HttpClient detected.
+      This sink could allow SSRF if user-controlled input reaches this point.
+    severity: HIGH
+    metadata:
+      category: security
+      cwe: "CWE-918: Server-Side Request Forgery (SSRF)"
+      technology:
+        - java
+        - apache-httpclient
+      subcategory:
+        - vuln
+      confidence: HIGH
+      library_group: "apache-httpclient"
+    languages:
+      - java
+    mode: taint
+    
+    pattern-sources:
+      - pattern: $ANYTHING
+    
+    pattern-sinks:
+      - pattern-either:
+          # ========================================
+          # Apache HttpClient (Classic 3.x, 4.x & 5.x)
+          # ========================================
+          
+          # HttpClient.execute() - executes HTTP request (4.x)
+          - pattern: (org.apache.http.client.HttpClient $CLIENT).execute($TAINT)
+          - pattern: (org.apache.http.client.HttpClient $CLIENT).execute($TAINT, ...)
+          
+          # CloseableHttpClient.execute() - Apache HttpClient 4.x/5.x
+          - pattern: (org.apache.http.impl.client.CloseableHttpClient $CLIENT).execute($TAINT)
+          - pattern: (org.apache.http.impl.client.CloseableHttpClient $CLIENT).execute($TAINT, ...)
+          
+          # Async variants (4.x)
+          - pattern: (org.apache.http.nio.client.HttpAsyncClient $CLIENT).execute($TAINT, ...)
+          
+          # HttpClient 5.x classic
+          - pattern: (org.apache.hc.client5.http.classic.HttpClient $CLIENT).execute($TAINT)
+          - pattern: (org.apache.hc.client5.http.classic.HttpClient $CLIENT).execute($TAINT, ...)
+          - pattern: (org.apache.hc.client5.http.impl.classic.CloseableHttpClient $CLIENT).execute($TAINT)
+          - pattern: (org.apache.hc.client5.http.impl.classic.CloseableHttpClient $CLIENT).execute($TAINT, ...)
+          
+          # HttpClient 5.x async
+          - pattern: (org.apache.hc.client5.http.async.HttpAsyncClient $CLIENT).execute($TAINT, ...)
+          
+          # Legacy Apache Commons HttpClient 3.x executeMethod
+          - pattern: (org.apache.commons.httpclient.HttpClient $CLIENT).executeMethod($TAINT)
+          - pattern: (org.apache.commons.httpclient.HttpClient $CLIENT).executeMethod($TAINT, ...)
+          
+          # HttpAsyncClient with Future result
+          - pattern: (org.apache.http.nio.client.HttpAsyncClient $CLIENT).execute($TAINT, ...)
+          - pattern: (org.apache.hc.client5.http.async.HttpAsyncClient $CLIENT).execute($TAINT, ...)
+          
+          # ========================================
+          # Apache CXF WebClient
+          # ========================================
+          
+          # CXF WebClient path/URL setting
+          - pattern: (org.apache.cxf.jaxrs.client.WebClient $CLIENT).to($TAINT, ...)
+          - pattern: (org.apache.cxf.jaxrs.client.WebClient $CLIENT).path($TAINT)
+          - pattern: (org.apache.cxf.jaxrs.client.WebClient $CLIENT).replacePath($TAINT)
+          
+          # CXF WebClient execution
+          - pattern: (org.apache.cxf.jaxrs.client.WebClient $CLIENT).get()
+          - pattern: (org.apache.cxf.jaxrs.client.WebClient $CLIENT).post(...)
+          - pattern: (org.apache.cxf.jaxrs.client.WebClient $CLIENT).put(...)
+          - pattern: (org.apache.cxf.jaxrs.client.WebClient $CLIENT).delete()
+          - pattern: (org.apache.cxf.jaxrs.client.WebClient $CLIENT).invoke(...)
+          
+          # CXF WebClient.create() with URL
+          - pattern: org.apache.cxf.jaxrs.client.WebClient.create($TAINT)
+          - pattern: org.apache.cxf.jaxrs.client.WebClient.create($TAINT, ...)

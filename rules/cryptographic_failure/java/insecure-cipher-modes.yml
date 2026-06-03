@@ -1,0 +1,64 @@
+rules:
+  # ==================== INSECURE CIPHER MODES ====================
+
+  - id: java-cipher-ecb-mode
+    pattern-either:
+      - pattern: Cipher.getInstance("AES/ECB/PKCS5Padding")
+      - pattern: Cipher.getInstance("AES/ECB/NoPadding")
+      - pattern: Cipher.getInstance("DES/ECB/PKCS5Padding")
+      - pattern: Cipher.getInstance("DES/ECB/NoPadding")
+      - pattern: Cipher.getInstance("DESede/ECB/PKCS5Padding")
+      - pattern: Cipher.getInstance("DESede/ECB/NoPadding")
+      - pattern: Cipher.getInstance("RSA/ECB/PKCS1Padding")
+      - pattern: Cipher.getInstance("RSA/ECB/OAEPPadding")
+      - pattern: Cipher.getInstance("RSA/ECB/NoPadding")
+      - pattern: Cipher.getInstance("Blowfish/ECB/PKCS5Padding")
+      - pattern: Cipher.getInstance("IDEA/ECB/PKCS5Padding")
+      - pattern: Cipher.getInstance("RC2/ECB/PKCS5Padding")
+    languages:
+      - java
+    severity: ERROR
+    message: "ECB mode is insecure as it does not provide semantic security. Use GCM or CBC mode with proper IV."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+      owasp: "A02:2021 - Cryptographic Failures"
+
+  - id: java-cipher-no-mode-specified
+    pattern-either:
+      - pattern: Cipher.getInstance("AES")
+      - pattern: Cipher.getInstance("aes")
+    languages:
+      - java
+    severity: WARNING
+    message: "Cipher transformation does not specify mode and padding. This may default to insecure ECB mode. Specify explicit mode and padding (e.g., AES/GCM/NoPadding)."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+
+  # ==================== INSECURE PADDING SCHEMES ====================
+
+  - id: java-rsa-no-padding
+    pattern-either:
+      - pattern: Cipher.getInstance("RSA/None/NoPadding")
+      - pattern: Cipher.getInstance("RSA/ECB/NoPadding")
+      - pattern: Cipher.getInstance("RSA/NONE/NoPadding")
+    languages:
+      - java
+    severity: ERROR
+    message: "RSA without padding is insecure and vulnerable to attacks. Use RSA/ECB/OAEPPadding or RSA/ECB/OAEPWithSHA-256AndMGF1Padding."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+
+  - id: java-rsa-pkcs1-padding
+    pattern-either:
+      - pattern: Cipher.getInstance("RSA/ECB/PKCS1Padding")
+      - pattern: Cipher.getInstance("RSA/None/PKCS1Padding")
+    languages:
+      - java
+    severity: WARNING
+    message: "RSA with PKCS1 padding is vulnerable to padding oracle attacks. Use OAEP padding (RSA/ECB/OAEPPadding or RSA/ECB/OAEPWithSHA-256AndMGF1Padding)."
+    metadata:
+      category: security
+      cwe: "CWE-327"

@@ -1,0 +1,71 @@
+rules:
+  - id: java-ssrf-sinks-spring-framework
+    message: >-
+      Potentially unsafe outbound network request using Spring HTTP client detected.
+      This sink could allow SSRF if user-controlled input reaches this point.
+    severity: HIGH
+    metadata:
+      category: security
+      cwe: "CWE-918: Server-Side Request Forgery (SSRF)"
+      technology:
+        - java
+        - spring
+      subcategory:
+        - vuln
+      confidence: HIGH
+      library_group: "spring-framework"
+    languages:
+      - java
+    mode: taint
+    
+    pattern-sources:
+      - pattern: $ANYTHING
+    
+    pattern-sinks:
+      - pattern-either:
+          # ========================================
+          # Spring RestTemplate
+          # ========================================
+          
+          # RestTemplate HTTP method variants - URL is typically first parameter
+          - pattern: (org.springframework.web.client.RestTemplate $RT).exchange($TAINT, ...)
+          - pattern: (org.springframework.web.client.RestTemplate $RT).getForObject($TAINT, ...)
+          - pattern: (org.springframework.web.client.RestTemplate $RT).getForEntity($TAINT, ...)
+          - pattern: (org.springframework.web.client.RestTemplate $RT).postForObject($TAINT, ...)
+          - pattern: (org.springframework.web.client.RestTemplate $RT).postForEntity($TAINT, ...)
+          - pattern: (org.springframework.web.client.RestTemplate $RT).postForLocation($TAINT, ...)
+          - pattern: (org.springframework.web.client.RestTemplate $RT).put($TAINT, ...)
+          - pattern: (org.springframework.web.client.RestTemplate $RT).delete($TAINT, ...)
+          - pattern: (org.springframework.web.client.RestTemplate $RT).patchForObject($TAINT, ...)
+          - pattern: (org.springframework.web.client.RestTemplate $RT).headForHeaders($TAINT, ...)
+          - pattern: (org.springframework.web.client.RestTemplate $RT).optionsForAllow($TAINT, ...)
+          - pattern: (org.springframework.web.client.RestTemplate $RT).execute($TAINT, ...)
+          
+          # ========================================
+          # Spring WebClient (Reactive)
+          # ========================================
+          
+          # WebClient URI specification - this is where user input enters
+          - pattern: (org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec $SPEC).uri($TAINT)
+          - pattern: (org.springframework.web.reactive.function.client.WebClient.RequestHeadersUriSpec $SPEC).uri($TAINT, ...)
+          - pattern: (org.springframework.web.reactive.function.client.WebClient.RequestBodyUriSpec $SPEC).uri($TAINT)
+          - pattern: (org.springframework.web.reactive.function.client.WebClient.RequestBodyUriSpec $SPEC).uri($TAINT, ...)
+          
+          # WebClient retrieve() - triggers actual request execution
+          - pattern: (org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec $SPEC).retrieve()
+          
+          # WebClient exchange() - lower-level request execution (deprecated but still used)
+          - pattern: (org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec $SPEC).exchange()
+          
+          # WebClient exchangeToMono/Flux - reactive execution methods
+          - pattern: (org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec $SPEC).exchangeToMono(...)
+          - pattern: (org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec $SPEC).exchangeToFlux(...)
+          
+          # WebClient method chaining - direct method calls
+          - pattern: (org.springframework.web.reactive.function.client.WebClient $WC).get().uri($TAINT)
+          - pattern: (org.springframework.web.reactive.function.client.WebClient $WC).post().uri($TAINT)
+          - pattern: (org.springframework.web.reactive.function.client.WebClient $WC).put().uri($TAINT)
+          - pattern: (org.springframework.web.reactive.function.client.WebClient $WC).patch().uri($TAINT)
+          - pattern: (org.springframework.web.reactive.function.client.WebClient $WC).delete().uri($TAINT)
+          - pattern: (org.springframework.web.reactive.function.client.WebClient $WC).head().uri($TAINT)
+          - pattern: (org.springframework.web.reactive.function.client.WebClient $WC).options().uri($TAINT)

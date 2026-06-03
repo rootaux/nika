@@ -1,0 +1,30 @@
+rules:
+  - id: xxe-sink-jdom-saxbuilder-build
+    patterns:
+      - pattern: $BUILDER.build(...)
+      - metavariable-type:
+          metavariable: $BUILDER
+          types:
+            - org.jdom.input.SAXBuilder
+            - org.jdom2.input.SAXBuilder
+    message: "XXE sink: JDOM SAXBuilder.build() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-jdom-dombuilder-build
+    patterns:
+      - pattern: $BUILDER.build(...)
+      - metavariable-type:
+          metavariable: $BUILDER
+          types:
+            - org.jdom.input.DOMBuilder
+            - org.jdom2.input.DOMBuilder
+    message: "XXE sink: JDOM DOMBuilder.build() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

@@ -1,0 +1,258 @@
+rules:
+- id: jdbi-createquery-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $HANDLE.createQuery($SQL + $INPUT)
+    - pattern: $HANDLE.createQuery(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-createquery-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $HANDLE.createQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-createquery-string-format
+  patterns:
+  - pattern: $HANDLE.createQuery(String.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-createupdate-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $HANDLE.createUpdate($SQL + $INPUT)
+    - pattern: $HANDLE.createUpdate(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-createupdate-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $HANDLE.createUpdate($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-execute-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $HANDLE.execute($SQL + $INPUT, ...)
+    - pattern: $HANDLE.execute(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-execute-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $HANDLE.execute($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-select-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $HANDLE.select($SQL + $INPUT, ...)
+    - pattern: $HANDLE.select(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-select-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $HANDLE.select($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-sqlquery-annotation-concat
+  patterns:
+  - pattern: '@SqlQuery($SQL + $INPUT)'
+  - pattern-inside: "interface $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-sqlupdate-annotation-concat
+  patterns:
+  - pattern: '@SqlUpdate($SQL + $INPUT)'
+  - pattern-inside: "interface $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-intransaction-variable-concat
+  patterns:
+  - pattern: "String $SQL = ... + $VAR + ...;\n...\n$JDBI.inTransaction($HANDLE ->\
+      \ {\n  ...\n  $HANDLE.execute($SQL, ...);\n  ...\n});"
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-usehandle-variable-concat
+  patterns:
+  - pattern: "String $SQL = ... + $VAR + ...;\n...\n$JDBI.useHandle($HANDLE -> {\n\
+      \  ...\n  $HANDLE.execute($SQL, ...);\n  ...\n});"
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-preparebatch-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $HANDLE.prepareBatch($SQL + $INPUT)
+    - pattern: $HANDLE.prepareBatch(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-preparebatch-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $HANDLE.prepareBatch($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-createscript-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $HANDLE.createScript($SQL + $INPUT)
+    - pattern: $HANDLE.createScript(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-createscript-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $HANDLE.createScript($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH

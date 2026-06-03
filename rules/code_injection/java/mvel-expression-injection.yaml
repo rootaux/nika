@@ -1,0 +1,9 @@
+rules:
+  - id: java-mvel-expression-injection
+    languages:
+      - java
+    severity: ERROR
+    message: >-
+      Potential Command Injection via MVEL expressions.
+    patterns:
+      - pattern: $MVEL.executeExpression(...)

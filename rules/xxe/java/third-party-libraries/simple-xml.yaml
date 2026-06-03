@@ -1,0 +1,14 @@
+rules:
+  - id: xxe-sink-simple-xml-serializer-read
+    patterns:
+      - pattern: $SERIALIZER.read(...)
+      - metavariable-type:
+          metavariable: $SERIALIZER
+          types:
+            - org.simpleframework.xml.Serializer
+    message: "XXE sink: Simple XML Framework Serializer.read() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

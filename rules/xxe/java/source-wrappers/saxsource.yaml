@@ -1,0 +1,153 @@
+rules:
+  - id: xxe-sink-saxsource-validator-validate
+    patterns:
+      - pattern-either:
+          - pattern: $VALIDATOR.validate(new javax.xml.transform.sax.SAXSource(...), ...)
+          - pattern: $VALIDATOR.validate(new javax.xml.transform.sax.SAXSource(...))
+      - metavariable-type:
+          metavariable: $VALIDATOR
+          types:
+            - javax.xml.validation.Validator
+    message: "XXE sink: Validator.validate() with SAXSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-saxsource-transformer-transform
+    patterns:
+      - pattern-either:
+          - pattern: $TRANSFORMER.transform(new javax.xml.transform.sax.SAXSource(...), ...)
+          - pattern: $TRANSFORMER.transform($SRC, new javax.xml.transform.sax.SAXSource(...))
+      - metavariable-type:
+          metavariable: $TRANSFORMER
+          types:
+            - javax.xml.transform.Transformer
+    message: "XXE sink: Transformer.transform() with SAXSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-saxsource-schemafactory-newschema-inline
+    patterns:
+      - pattern: $FACTORY.newSchema(new javax.xml.transform.sax.SAXSource(...))
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.validation.SchemaFactory
+    message: "XXE sink: SchemaFactory.newSchema() with SAXSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-saxsource-schemafactory-newschema-array
+    patterns:
+      - pattern: $FACTORY.newSchema(new javax.xml.transform.Source[] {... })
+      - metavariable-pattern:
+          metavariable: $FACTORY
+          pattern: $VAR
+      - metavariable-type:
+          metavariable: $VAR
+          types:
+            - javax.xml.validation.SchemaFactory
+    message: "XXE sink: SchemaFactory.newSchema() with Source array can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-saxsource-unmarshaller-unmarshal
+    patterns:
+      - pattern: $UNMARSHALLER.unmarshal(new javax.xml.transform.sax.SAXSource(...))
+      - metavariable-type:
+          metavariable: $UNMARSHALLER
+          types:
+            - javax.xml.bind.Unmarshaller
+            - jakarta.xml.bind.Unmarshaller
+    message: "XXE sink: Unmarshaller.unmarshal() with SAXSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-saxsource-transformerfactory-newtemplates
+    patterns:
+      - pattern: $FACTORY.newTemplates(new javax.xml.transform.sax.SAXSource(...))
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.transform.TransformerFactory
+    message: "XXE sink: TransformerFactory.newTemplates() with SAXSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-saxsource-transformerfactory-newtransformer
+    patterns:
+      - pattern: $FACTORY.newTransformer(new javax.xml.transform.sax.SAXSource(...))
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.transform.TransformerFactory
+    message: "XXE sink: TransformerFactory.newTransformer() with SAXSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-saxsource-variable-then-use
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: |
+                  $SOURCE = new javax.xml.transform.sax.SAXSource(...);
+                  ...
+                  $VALIDATOR.validate($SOURCE, ...);
+              - metavariable-type:
+                  metavariable: $VALIDATOR
+                  types:
+                    - javax.xml.validation.Validator
+          - patterns:
+              - pattern: |
+                  $SOURCE = new javax.xml.transform.sax.SAXSource(...);
+                  ...
+                  $TRANSFORMER.transform($SOURCE, ...);
+              - metavariable-type:
+                  metavariable: $TRANSFORMER
+                  types:
+                    - javax.xml.transform.Transformer
+          - patterns:
+              - pattern: |
+                  $SOURCE = new javax.xml.transform.sax.SAXSource(...);
+                  ...
+                  $FACTORY.newSchema($SOURCE);
+              - metavariable-type:
+                  metavariable: $FACTORY
+                  types:
+                    - javax.xml.validation.SchemaFactory
+          - patterns:
+              - pattern: |
+                  $SOURCE = new javax.xml.transform.sax.SAXSource(...);
+                  ...
+                  $UNMARSHALLER.unmarshal($SOURCE);
+              - metavariable-type:
+                  metavariable: $UNMARSHALLER
+                  types:
+                    - javax.xml.bind.Unmarshaller
+                    - jakarta.xml.bind.Unmarshaller
+    message: "XXE sink: SAXSource variable used with XML parser can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

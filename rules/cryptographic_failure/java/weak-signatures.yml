@@ -1,0 +1,70 @@
+rules:
+  # ==================== WEAK SIGNATURES ====================
+
+  - id: java-weak-signature-md2
+    pattern-either:
+      - pattern: Signature.getInstance("MD2withRSA")
+      - pattern: Signature.getInstance("md2withRSA")
+      - pattern: Signature.getInstance("MD2WithRSA")
+      - pattern: Signature.getInstance("MD2WITHRSA")
+    languages:
+      - java
+    severity: ERROR
+    message: "MD2-based signatures are cryptographically broken. Use SHA256withRSA, SHA384withRSA, or SHA512withRSA."
+    metadata:
+      category: security
+      cwe: "CWE-328"
+      owasp: "A02:2021 - Cryptographic Failures"
+
+  - id: java-weak-signature-md5
+    pattern-either:
+      - pattern: Signature.getInstance("MD5withRSA")
+      - pattern: Signature.getInstance("md5withRSA")
+      - pattern: Signature.getInstance("MD5WithRSA")
+      - pattern: Signature.getInstance("MD5WITHRSA")
+    languages:
+      - java
+    severity: ERROR
+    message: "MD5-based signatures are cryptographically broken. Use SHA256withRSA, SHA384withRSA, or SHA512withRSA."
+    metadata:
+      category: security
+      cwe: "CWE-328"
+      owasp: "A02:2021 - Cryptographic Failures"
+
+  - id: java-weak-signature-sha1
+    pattern-either:
+      - pattern: Signature.getInstance("SHA1withRSA")
+      - pattern: Signature.getInstance("SHA1withDSA")
+      - pattern: Signature.getInstance("SHA1withECDSA")
+      - pattern: Signature.getInstance("sha1withRSA")
+      - pattern: Signature.getInstance("sha1withDSA")
+      - pattern: Signature.getInstance("sha1withECDSA")
+      - pattern: Signature.getInstance("SHA1WithRSA")
+      - pattern: Signature.getInstance("SHA1WithDSA")
+      - pattern: Signature.getInstance("SHA1WithECDSA")
+      - pattern: Signature.getInstance("SHA1WITHRSA")
+      - pattern: Signature.getInstance("SHA1WITHDSA")
+      - pattern: Signature.getInstance("SHA1WITHECDSA")
+    languages:
+      - java
+    severity: WARNING
+    message: "SHA-1 based signatures are weak and deprecated. Use SHA256withRSA, SHA256withECDSA, or stronger."
+    metadata:
+      category: security
+      cwe: "CWE-328"
+      owasp: "A02:2021 - Cryptographic Failures"
+
+  - id: java-signature-none-with-rsa
+    pattern-either:
+      - pattern: Signature.getInstance("NONEwithRSA")
+      - pattern: Signature.getInstance("nonewithRSA")
+      - pattern: Signature.getInstance("NONEWithRSA")
+      - pattern: Signature.getInstance("NONEWITHRSA")
+    languages:
+      - java
+    severity: ERROR
+    message: "NONEwithRSA signature provides no hash function and is insecure. Use SHA256withRSA, SHA384withRSA, or SHA512withRSA."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+      owasp: "A02:2021 - Cryptographic Failures"

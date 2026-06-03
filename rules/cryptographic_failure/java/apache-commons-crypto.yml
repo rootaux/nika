@@ -1,0 +1,81 @@
+rules:
+  # ==================== APACHE COMMONS WEAK HASH FUNCTIONS ====================
+
+  - id: java-apache-commons-md5crypt
+    pattern-either:
+      - pattern: Md5Crypt.md5Crypt(...)
+      - pattern: Md5Crypt.apr1Crypt(...)
+    languages:
+      - java
+    severity: WARNING
+    message: "Apache Commons Md5Crypt uses MD5 which is cryptographically broken. Use BCrypt, SCrypt, or Argon2 for password hashing."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+      owasp: "A02:2021 - Cryptographic Failures"
+
+  - id: java-apache-commons-sha2crypt
+    pattern-either:
+      - pattern: Sha2Crypt.sha256Crypt(...)
+      - pattern: Sha2Crypt.sha512Crypt(...)
+    languages:
+      - java
+    severity: INFO
+    message: "Apache Commons Sha2Crypt is acceptable but consider modern alternatives like BCrypt, SCrypt, or Argon2 for password hashing."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+
+  - id: java-apache-commons-crypt-md5
+    patterns:
+      - pattern-either:
+          - pattern: Crypt.crypt($PASS, "$1$...")
+          - pattern: Crypt.crypt($PASS, "$apr1$...")
+          - pattern: Crypt.crypt($BYTES, "$1$...")
+          - pattern: Crypt.crypt($BYTES, "$apr1$...")
+    languages:
+      - java
+    severity: WARNING
+    message: "Apache Commons Crypt with MD5-based salt (prefix $1$ or $apr1$) is weak. Use BCrypt ($2a$), SCrypt, or Argon2 instead."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+      owasp: "A02:2021 - Cryptographic Failures"
+
+  - id: java-apache-commons-crypt-variable-md5
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: Crypt.crypt($PASS, $SALT)
+              - metavariable-pattern:
+                  metavariable: $SALT
+                  patterns:
+                    - pattern-either:
+                        - pattern: '"$1$..."'
+                        - pattern: '"$apr1$..."'
+          - patterns:
+              - pattern: Crypt.crypt($BYTES, $SALT)
+              - metavariable-pattern:
+                  metavariable: $SALT
+                  patterns:
+                    - pattern-either:
+                        - pattern: '"$1$..."'
+                        - pattern: '"$apr1$..."'
+    languages:
+      - java
+    severity: WARNING
+    message: "Apache Commons Crypt with MD5-based salt (prefix $1$ or $apr1$) is weak. Use BCrypt ($2a$), SCrypt, or Argon2 instead."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+
+  - id: java-apache-commons-unix-crypt
+    pattern-either:
+      - pattern: UnixCrypt.crypt(...)
+    languages:
+      - java
+    severity: ERROR
+    message: "Apache Commons UnixCrypt uses DES which is cryptographically broken. Use BCrypt, SCrypt, or Argon2 for password hashing."
+    metadata:
+      category: security
+      cwe: "CWE-327"

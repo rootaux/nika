@@ -1,0 +1,116 @@
+rules:
+  # ==================== WEAK HASH ALGORITHMS ====================
+  
+  - id: java-weak-hash-md5
+    pattern-either:
+      - pattern: MessageDigest.getInstance("MD5")
+      - pattern: MessageDigest.getInstance("md5")
+      - pattern: DigestUtils.getMd5Digest()
+      - pattern: DigestUtils.md5(...)
+      - pattern: DigestUtils.md5Hex(...)
+      - pattern: Hashing.md5()
+    languages:
+      - java
+    severity: WARNING
+    message: "MD5 is cryptographically broken and should not be used for security purposes. Use SHA-256 or stronger."
+    metadata:
+      category: security
+      cwe: "CWE-328"
+      owasp: "A02:2021 - Cryptographic Failures"
+
+  - id: java-weak-hash-md2
+    pattern-either:
+      - pattern: MessageDigest.getInstance("MD2")
+      - pattern: MessageDigest.getInstance("md2")
+    languages:
+      - java
+    severity: WARNING
+    message: "MD2 is cryptographically broken and should not be used. Use SHA-256 or stronger."
+    metadata:
+      category: security
+      cwe: "CWE-328"
+
+  - id: java-weak-hash-md4
+    pattern-either:
+      - pattern: MessageDigest.getInstance("MD4")
+      - pattern: MessageDigest.getInstance("md4")
+    languages:
+      - java
+    severity: WARNING
+    message: "MD4 is cryptographically broken and should not be used. Use SHA-256 or stronger."
+    metadata:
+      category: security
+      cwe: "CWE-328"
+
+  - id: java-weak-hash-sha0
+    pattern-either:
+      - pattern: MessageDigest.getInstance("SHA-0")
+      - pattern: MessageDigest.getInstance("SHA0")
+      - pattern: MessageDigest.getInstance("sha-0")
+      - pattern: MessageDigest.getInstance("sha0")
+    languages:
+      - java
+    severity: ERROR
+    message: "SHA-0 is cryptographically broken and must not be used. Use SHA-256 or stronger."
+    metadata:
+      category: security
+      cwe: "CWE-328"
+
+  - id: java-weak-hash-sha1
+    pattern-either:
+      - pattern: MessageDigest.getInstance("SHA-1")
+      - pattern: MessageDigest.getInstance("SHA1")
+      - pattern: MessageDigest.getInstance("sha-1")
+      - pattern: MessageDigest.getInstance("sha1")
+      - pattern: DigestUtils.getSha1Digest()
+      - pattern: DigestUtils.sha1(...)
+      - pattern: DigestUtils.sha1Hex(...)
+      - pattern: Hashing.sha1()
+    languages:
+      - java
+    severity: WARNING
+    message: "SHA-1 is cryptographically weak and deprecated. Use SHA-256 or stronger."
+    metadata:
+      category: security
+      cwe: "CWE-328"
+      owasp: "A02:2021 - Cryptographic Failures"
+
+  - id: java-weak-hash-ripemd128
+    pattern-either:
+      - pattern: MessageDigest.getInstance("RIPEMD128")
+      - pattern: MessageDigest.getInstance("RIPEMD-128")
+      - pattern: MessageDigest.getInstance("RIPEMD")
+      - pattern: MessageDigest.getInstance("ripemd128")
+      - pattern: MessageDigest.getInstance("ripemd")
+    languages:
+      - java
+    severity: WARNING
+    message: "RIPEMD-128 is cryptographically weak. Use SHA-256 or stronger."
+    metadata:
+      category: security
+      cwe: "CWE-328"
+
+  - id: java-weak-hash-tiger
+    pattern-either:
+      - pattern: MessageDigest.getInstance("Tiger")
+      - pattern: MessageDigest.getInstance("TIGER")
+      - pattern: MessageDigest.getInstance("tiger")
+    languages:
+      - java
+    severity: WARNING
+    message: "Tiger hash is not widely vetted and should be avoided. Use SHA-256 or stronger."
+    metadata:
+      category: security
+      cwe: "CWE-328"
+
+  - id: java-weak-hash-haval
+    pattern-either:
+      - pattern: MessageDigest.getInstance("HAVAL")
+      - pattern: MessageDigest.getInstance("haval")
+    languages:
+      - java
+    severity: WARNING
+    message: "HAVAL is cryptographically weak. Use SHA-256 or stronger."
+    metadata:
+      category: security
+      cwe: "CWE-328"

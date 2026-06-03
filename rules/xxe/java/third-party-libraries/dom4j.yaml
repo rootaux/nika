@@ -1,0 +1,23 @@
+rules:
+  - id: xxe-sink-dom4j-saxreader-read
+    patterns:
+      - pattern: $READER.read(...)
+      - metavariable-type:
+          metavariable: $READER
+          types:
+            - org.dom4j.io.SAXReader
+    message: "XXE sink: DOM4J SAXReader.read() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-dom4j-documenthelper-parsetext
+    pattern: org.dom4j.DocumentHelper.parseText(...)
+    message: "XXE sink: DOM4J DocumentHelper.parseText() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

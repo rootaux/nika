@@ -1,0 +1,444 @@
+rules:
+- id: spring-jdbctemplate-query-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $TEMPLATE.query($SQL + $INPUT, ...)
+    - pattern: $TEMPLATE.query(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-query-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $TEMPLATE.query($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-query-string-format
+  patterns:
+  - pattern: $TEMPLATE.query(String.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForObject-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $TEMPLATE.queryForObject($SQL + $INPUT, ...)
+    - pattern: $TEMPLATE.queryForObject(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForObject-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $TEMPLATE.queryForObject($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForObject-string-format
+  patterns:
+  - pattern: $TEMPLATE.queryForObject(String.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForList-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $TEMPLATE.queryForList($SQL + $INPUT, ...)
+    - pattern: $TEMPLATE.queryForList(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForList-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $TEMPLATE.queryForList($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForList-string-format
+  patterns:
+  - pattern: $TEMPLATE.queryForList(String.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForMap-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $TEMPLATE.queryForMap($SQL + $INPUT, ...)
+    - pattern: $TEMPLATE.queryForMap(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForMap-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $TEMPLATE.queryForMap($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForMap-string-format
+  patterns:
+  - pattern: $TEMPLATE.queryForMap(String.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-update-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $TEMPLATE.update($SQL + $INPUT, ...)
+    - pattern: $TEMPLATE.update(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-update-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $TEMPLATE.update($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-update-string-format
+  patterns:
+  - pattern: $TEMPLATE.update(String.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-execute-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $TEMPLATE.execute($SQL + $INPUT, ...)
+    - pattern: $TEMPLATE.execute(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-execute-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $TEMPLATE.execute($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-execute-string-format
+  patterns:
+  - pattern: $TEMPLATE.execute(String.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-batchUpdate-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $TEMPLATE.batchUpdate($SQL + $INPUT, ...)
+    - pattern: $TEMPLATE.batchUpdate(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-batchUpdate-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $TEMPLATE.batchUpdate($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-batchUpdate-string-format
+  patterns:
+  - pattern: $TEMPLATE.batchUpdate(String.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-namedparamjdbctemplate-query-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $TEMPLATE.query($SQL + $INPUT, ...)
+    - pattern: $TEMPLATE.query(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-namedparamjdbctemplate-query-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $TEMPLATE.query($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-namedparamjdbctemplate-queryForObject-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $TEMPLATE.queryForObject($SQL + $INPUT, ...)
+    - pattern: $TEMPLATE.queryForObject(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-namedparamjdbctemplate-queryForObject-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $TEMPLATE.queryForObject($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-namedparamjdbctemplate-queryForList-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $TEMPLATE.queryForList($SQL + $INPUT, ...)
+    - pattern: $TEMPLATE.queryForList(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-namedparamjdbctemplate-queryForList-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $TEMPLATE.queryForList($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-namedparamjdbctemplate-update-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $TEMPLATE.update($SQL + $INPUT, ...)
+    - pattern: $TEMPLATE.update(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-namedparamjdbctemplate-update-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $TEMPLATE.update($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH

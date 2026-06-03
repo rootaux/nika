@@ -1,0 +1,49 @@
+rules:
+- id: mybatis-select-dollar-interpolation
+  patterns:
+  - pattern: '@Select("...$${...}...")'
+  - pattern-inside: "interface $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: mybatis-update-dollar-interpolation
+  patterns:
+  - pattern: '@Update("...$${...}...")'
+  - pattern-inside: "interface $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: mybatis-insert-dollar-interpolation
+  patterns:
+  - pattern: '@Insert("...$${...}...")'
+  - pattern-inside: "interface $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: mybatis-delete-dollar-interpolation
+  patterns:
+  - pattern: '@Delete("...$${...}...")'
+  - pattern-inside: "interface $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH

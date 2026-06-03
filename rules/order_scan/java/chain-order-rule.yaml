@@ -1,0 +1,19 @@
+rules:
+  - name: chain-order-enforcement-rule
+    description: >
+      This rule ensures calls made by the function are in order
+    severity: error
+    scope:
+      function: register
+    check: chain_order
+    chain_root: "chain.root"
+    filename: "Example.java"
+    ordered_calls:
+      - router1
+      - validator
+      - endrouter  
+    ignore_args:
+      - "HttpMethod.*"
+      - "create"
+    ignore_chain_root:
+      - '"/ping"'

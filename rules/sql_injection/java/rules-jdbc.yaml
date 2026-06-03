@@ -1,0 +1,286 @@
+rules:
+- id: jdbc-executequery-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $STMT.executeQuery($SQL + $INPUT)
+    - pattern: $STMT.executeQuery($INPUT + $SQL)
+    - pattern: $STMT.executeQuery(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-executequery-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $STMT.executeQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-executequery-string-format
+  patterns:
+  - pattern: $STMT.executeQuery(String.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-executequery-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $STMT.executeQuery($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-execute-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $STMT.execute($SQL + $INPUT)
+    - pattern: $STMT.execute($INPUT + $SQL)
+    - pattern: $STMT.execute(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-execute-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $STMT.execute($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-execute-string-format
+  patterns:
+  - pattern: $STMT.execute(String.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-executeupdate-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $STMT.executeUpdate($SQL + $INPUT)
+    - pattern: $STMT.executeUpdate($INPUT + $SQL)
+    - pattern: $STMT.executeUpdate(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-executeupdate-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $STMT.executeUpdate($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-executeupdate-string-format
+  patterns:
+  - pattern: $STMT.executeUpdate(String.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-preparestatement-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $CONN.prepareStatement($SQL + $INPUT)
+    - pattern: $CONN.prepareStatement($INPUT + $SQL)
+    - pattern: $CONN.prepareStatement(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-preparestatement-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $CONN.prepareStatement($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-preparestatement-string-format
+  patterns:
+  - pattern: $CONN.prepareStatement(String.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-preparecall-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $CONN.prepareCall($SQL + $INPUT)
+    - pattern: $CONN.prepareCall(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-preparecall-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $CONN.prepareCall($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-addbatch-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $STMT.addBatch($SQL + $INPUT)
+    - pattern: $STMT.addBatch(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-addbatch-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $STMT.addBatch($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-method-parameter-sink
+  patterns:
+  - pattern-either:
+    - pattern: $STMT.executeQuery($SQL)
+    - pattern: $STMT.execute($SQL)
+    - pattern: $STMT.executeUpdate($SQL)
+  - pattern-inside: "$METHOD(..., String $SQL, ...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH

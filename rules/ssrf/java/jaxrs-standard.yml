@@ -1,0 +1,57 @@
+rules:
+  - id: java-ssrf-sinks-jaxrs-standard
+    message: >-
+      Potentially unsafe outbound network request using JAX-RS Client API detected.
+      This sink could allow SSRF if user-controlled input reaches this point.
+    severity: HIGH
+    metadata:
+      category: security
+      cwe: "CWE-918: Server-Side Request Forgery (SSRF)"
+      technology:
+        - java
+        - jax-rs
+      subcategory:
+        - vuln
+      confidence: HIGH
+      library_group: "jaxrs-standard"
+      description: "Framework-agnostic JAX-RS Client API patterns (works with Jersey, RESTEasy, CXF, etc.)"
+    languages:
+      - java
+    mode: taint
+    
+    pattern-sources:
+      - pattern: $ANYTHING
+    
+    pattern-sinks:
+      - pattern-either:
+          # ========================================
+          # JAX-RS 2.0+ Client API (javax.ws.rs)
+          # ========================================
+          
+          # JAX-RS Client API (generic, framework-agnostic)
+          - pattern: (javax.ws.rs.client.Client $CLIENT).target($TAINT)
+          - pattern: (javax.ws.rs.client.WebTarget $TARGET).request()
+          - pattern: (javax.ws.rs.client.Invocation.Builder $BUILDER).get()
+          - pattern: (javax.ws.rs.client.Invocation.Builder $BUILDER).post(...)
+          - pattern: (javax.ws.rs.client.Invocation.Builder $BUILDER).put(...)
+          - pattern: (javax.ws.rs.client.Invocation.Builder $BUILDER).delete()
+          - pattern: (javax.ws.rs.client.Invocation.Builder $BUILDER).head()
+          - pattern: (javax.ws.rs.client.Invocation.Builder $BUILDER).options()
+          - pattern: (javax.ws.rs.client.Invocation.Builder $BUILDER).trace()
+          - pattern: (javax.ws.rs.client.Invocation $INV).invoke()
+          
+          # ========================================
+          # Jakarta EE (jakarta.ws.rs) - Modern Namespace
+          # ========================================
+          
+          # Jakarta EE variant (javax -> jakarta namespace)
+          - pattern: (jakarta.ws.rs.client.Client $CLIENT).target($TAINT)
+          - pattern: (jakarta.ws.rs.client.WebTarget $TARGET).request()
+          - pattern: (jakarta.ws.rs.client.Invocation.Builder $BUILDER).get()
+          - pattern: (jakarta.ws.rs.client.Invocation.Builder $BUILDER).post(...)
+          - pattern: (jakarta.ws.rs.client.Invocation.Builder $BUILDER).put(...)
+          - pattern: (jakarta.ws.rs.client.Invocation.Builder $BUILDER).delete()
+          - pattern: (jakarta.ws.rs.client.Invocation.Builder $BUILDER).head()
+          - pattern: (jakarta.ws.rs.client.Invocation.Builder $BUILDER).options()
+          - pattern: (jakarta.ws.rs.client.Invocation.Builder $BUILDER).trace()
+          - pattern: (jakarta.ws.rs.client.Invocation $INV).invoke()

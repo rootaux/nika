@@ -1,0 +1,14 @@
+rules:
+  - id: java-xmldecoder-deserialization
+    mode: taint
+    languages:
+      - java
+    severity: ERROR
+    message: >-
+      Potential Java deserialization.
+
+    pattern-sources:
+      - pattern: new XMLDecoder(..., $ARG, ...)
+
+    pattern-sinks:
+      - pattern: $XML.readObject()

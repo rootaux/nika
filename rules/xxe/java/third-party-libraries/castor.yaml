@@ -1,0 +1,16 @@
+rules:
+  - id: xxe-sink-castor-unmarshaller
+    pattern-either:
+      - patterns:
+          - pattern: $UNMARSHALLER.unmarshal(...)
+          - metavariable-type:
+              metavariable: $UNMARSHALLER
+              types:
+                - org.exolab.castor.xml.Unmarshaller
+      - pattern: org.exolab.castor.xml.Unmarshaller.unmarshal(...)
+    message: "XXE sink: Castor Unmarshaller.unmarshal() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

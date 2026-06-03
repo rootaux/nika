@@ -1,0 +1,42 @@
+rules:
+  - id: xxe-sink-xmlinputfactory-createxmlstreamreader
+    patterns:
+      - pattern: $FACTORY.createXMLStreamReader(...)
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.stream.XMLInputFactory
+    message: "XXE sink: XMLInputFactory.createXMLStreamReader() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-xmlinputfactory-createxmleventreader
+    patterns:
+      - pattern: $FACTORY.createXMLEventReader(...)
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.stream.XMLInputFactory
+    message: "XXE sink: XMLInputFactory.createXMLEventReader() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-xmlinputfactory-createfilteredreader
+    patterns:
+      - pattern: $FACTORY.createFilteredReader(...)
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.stream.XMLInputFactory
+    message: "XXE sink: XMLInputFactory.createFilteredReader() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

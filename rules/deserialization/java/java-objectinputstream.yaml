@@ -1,0 +1,18 @@
+rules:
+  - id: java-objectinputstream-deserialization
+    mode: taint
+    languages:
+      - java
+    severity: ERROR
+    message: >-
+      Potential Java deserialization.
+
+    pattern-sources:
+      - pattern: new ObjectInputStream($ARG)
+
+    pattern-sinks:
+      - pattern: $OIS.readObject()
+      - pattern: $OIS.readObjectNoData()
+      - pattern: $OIS.readResolve()
+      - pattern: $OIS.readExternal()
+      - pattern: $OIS.readUnshared()

@@ -1,0 +1,81 @@
+rules:
+  - id: java-ssrf-sinks-core-java
+    message: >-
+      Potentially unsafe outbound network request using core Java APIs detected.
+      This sink could allow SSRF if user-controlled input reaches this point.
+    severity: HIGH
+    metadata:
+      category: security
+      cwe: "CWE-918: Server-Side Request Forgery (SSRF)"
+      technology:
+        - java
+      subcategory:
+        - vuln
+      confidence: HIGH
+      library_group: "core-java"
+    languages:
+      - java
+    mode: taint
+    
+    pattern-sources:
+      - pattern: $ANYTHING
+    
+    pattern-sinks:
+      - pattern-either:
+          # ========================================
+          # java.net.URL - Core Java HTTP/networking
+          # ========================================
+          
+          # URL constructor - accepts arbitrary URLs
+          - pattern: new URL($TAINT)
+          - pattern: new URL($TAINT, ...)
+          
+          # URI constructor (alternative to URL)
+          - pattern: new URI($TAINT)
+          
+          # openConnection() - opens connection to URL resource
+          - pattern: (java.net.URL $URL).openConnection()
+          - pattern: (java.net.URL $URL).openConnection($PROXY)
+          
+          # openStream() - directly opens input stream from URL
+          - pattern: (java.net.URL $URL).openStream()
+          
+          # getContent() - retrieves content from URL
+          - pattern: (java.net.URL $URL).getContent()
+          - pattern: (java.net.URL $URL).getContent($CLASSES)
+          
+          # ========================================
+          # HttpURLConnection - Low-level HTTP client
+          # ========================================
+          
+          # connect() - establishes connection to remote server
+          - pattern: (java.net.HttpURLConnection $CONN).connect()
+          
+          # getInputStream() - fetches response data
+          - pattern: (java.net.HttpURLConnection $CONN).getInputStream()
+          
+          # getResponseCode() - triggers implicit connection
+          - pattern: (java.net.HttpURLConnection $CONN).getResponseCode()
+          
+          # getResponseMessage() - also triggers connection
+          - pattern: (java.net.HttpURLConnection $CONN).getResponseMessage()
+          
+          # getHeaderField() - may trigger connection
+          - pattern: (java.net.HttpURLConnection $CONN).getHeaderField(...)
+          
+          # ========================================
+          # Java 11+ HttpClient
+          # ========================================
+          
+          # HttpRequest.Builder.uri() - sets request URI
+          - pattern: (java.net.http.HttpRequest.Builder $BUILDER).uri($TAINT)
+          
+          # HttpClient.send() - synchronous request
+          - pattern: (java.net.http.HttpClient $CLIENT).send($TAINT, ...)
+          
+          # HttpClient.sendAsync() - asynchronous request (returns CompletableFuture)
+          - pattern: (java.net.http.HttpClient $CLIENT).sendAsync($TAINT, ...)
+          
+          # newBuilder() from URI
+          - pattern: java.net.http.HttpRequest.newBuilder($TAINT)
+          - pattern: java.net.http.HttpRequest.newBuilder().uri($TAINT)

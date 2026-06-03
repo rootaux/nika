@@ -1,0 +1,25 @@
+rules:
+  - id: xxe-sink-cxf-staxutils-read
+    pattern-either:
+      - pattern: org.apache.cxf.staxutils.StaxUtils.read(...)
+      - pattern: org.apache.cxf.staxutils.StaxUtils.createXMLStreamReader(...)
+    message: "XXE sink: Apache CXF StaxUtils can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-cxf-jaxbdatadinding
+    patterns:
+      - pattern: $BINDING.createUnmarshaller(...)
+      - metavariable-type:
+          metavariable: $BINDING
+          types:
+            - org.apache.cxf.jaxb.JAXBDataBinding
+    message: "XXE sink: Apache CXF JAXBDataBinding creates unmarshallers that may be vulnerable to XXE"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

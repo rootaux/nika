@@ -1,0 +1,316 @@
+rules:
+- id: jooq-fetch-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $DSL.fetch($SQL + $INPUT)
+    - pattern: $DSL.fetch(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetch-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $DSL.fetch($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetch-string-format
+  patterns:
+  - pattern: $DSL.fetch(String.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchOne-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $DSL.fetchOne($SQL + $INPUT)
+    - pattern: $DSL.fetchOne(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchOne-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $DSL.fetchOne($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchOne-string-format
+  patterns:
+  - pattern: $DSL.fetchOne(String.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchAny-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $DSL.fetchAny($SQL + $INPUT)
+    - pattern: $DSL.fetchAny(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchAny-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $DSL.fetchAny($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchAny-string-format
+  patterns:
+  - pattern: $DSL.fetchAny(String.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchOptional-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $DSL.fetchOptional($SQL + $INPUT)
+    - pattern: $DSL.fetchOptional(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchOptional-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $DSL.fetchOptional($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchOptional-string-format
+  patterns:
+  - pattern: $DSL.fetchOptional(String.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-execute-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $DSL.execute($SQL + $INPUT)
+    - pattern: $DSL.execute(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-execute-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $DSL.execute($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-execute-string-format
+  patterns:
+  - pattern: $DSL.execute(String.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-query-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $DSL.query($SQL + $INPUT)
+    - pattern: $DSL.query(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-query-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $DSL.query($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-query-string-format
+  patterns:
+  - pattern: $DSL.query(String.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-resultQuery-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $DSL.resultQuery($SQL + $INPUT)
+    - pattern: $DSL.resultQuery(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-resultQuery-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $DSL.resultQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-resultQuery-string-format
+  patterns:
+  - pattern: $DSL.resultQuery(String.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH

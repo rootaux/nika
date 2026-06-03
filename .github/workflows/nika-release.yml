@@ -1,0 +1,205 @@
+name: Nika Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      releaseType:
+        description: What kind of release is this?
+        required: true
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+permissions:
+  contents: write
+  packages: write
+
+concurrency:
+  group: nika-release
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  prepare-release:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.version.outputs.new_version }}
+      image_repository: ${{ steps.version.outputs.image_repository }}
+      release_ref: ${{ steps.publish_release.outputs.release_ref }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          fetch-depth: 0
+
+      - name: Compute next release version
+        id: version
+        env:
+          RELEASE_TYPE: ${{ inputs.releaseType }}
+        shell: bash -e
+        run: |
+          set -euo pipefail
+
+          latest_tag="$(git tag --list 'v*' --sort=-version:refname | head -n1)"
+          if [[ -z "$latest_tag" ]]; then
+            latest_tag="v0.0.0"
+          fi
+
+          version="${latest_tag#v}"
+          IFS='.' read -r major minor patch <<< "$version"
+
+          case "$RELEASE_TYPE" in
+            major)
+              major=$((major + 1))
+              minor=0
+              patch=0
+              ;;
+            minor)
+              minor=$((minor + 1))
+              patch=0
+              ;;
+            patch)
+              patch=$((patch + 1))
+              ;;
+            *)
+              echo "Unsupported release type: $RELEASE_TYPE" >&2
+              exit 1
+              ;;
+          esac
+
+          new_version="v${major}.${minor}.${patch}"
+          image_repository="${REGISTRY}/${GITHUB_REPOSITORY,,}"
+
+          echo "latest_tag=$latest_tag" >> "$GITHUB_OUTPUT"
+          echo "new_version=$new_version" >> "$GITHUB_OUTPUT"
+          echo "image_repository=$image_repository" >> "$GITHUB_OUTPUT"
+
+      - name: Update runtime version
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new_version }}
+        shell: bash -e
+        run: |
+          set -euo pipefail
+
+          cat > runtime/version.py <<EOF
+          APP_VERSION = "${NEW_VERSION}"
+          EOF
+
+      - name: Commit version update and push release ref
+        id: publish_release
+        env:
+          NEW_VERSION: ${{ steps.version.outputs.new_version }}
+        shell: bash -e
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add runtime/version.py
+          git commit -m "chore: release ${NEW_VERSION}"
+          git push origin HEAD:main
+
+          git tag -a "$NEW_VERSION" -m "Release $NEW_VERSION"
+          git push origin "$NEW_VERSION"
+
+          echo "release_ref=${NEW_VERSION}" >> "$GITHUB_OUTPUT"
+
+  build-and-push-image:
+    needs: prepare-release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-latest
+            image_suffix: amd64
+            opengrep_url: https://github.com/opengrep/opengrep/releases/download/v1.19.0/opengrep_manylinux_x86
+          - platform: linux/arm64
+            runner: ubuntu-24.04-arm
+            image_suffix: arm64
+            opengrep_url: https://github.com/opengrep/opengrep/releases/download/v1.19.0/opengrep_manylinux_aarch64
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+        with:
+          ref: ${{ needs.prepare-release.outputs.release_ref }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5
+
+      - name: Log in to GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf
+        with:
+          context: .
+          platforms: ${{ matrix.platform }}
+          push: true
+          build-args: |
+            OPENGREP_URL=${{ matrix.opengrep_url }}
+          tags: |
+            ${{ needs.prepare-release.outputs.image_repository }}:${{ needs.prepare-release.outputs.new_version }}-${{ matrix.image_suffix }}
+          labels: |
+            org.opencontainers.image.title=nika
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ needs.prepare-release.outputs.new_version }}
+
+  publish-manifest:
+    needs:
+      - prepare-release
+      - build-and-push-image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5
+
+      - name: Log in to GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create multi-arch manifest
+        env:
+          IMAGE_REPOSITORY: ${{ needs.prepare-release.outputs.image_repository }}
+          NEW_VERSION: ${{ needs.prepare-release.outputs.new_version }}
+        run: |
+          set -euo pipefail
+
+          docker buildx imagetools create \
+            --tag "${IMAGE_REPOSITORY}:${NEW_VERSION}" \
+            --tag "${IMAGE_REPOSITORY}:latest" \
+            "${IMAGE_REPOSITORY}:${NEW_VERSION}-amd64" \
+            "${IMAGE_REPOSITORY}:${NEW_VERSION}-arm64"
+
+  create-release:
+    needs:
+      - prepare-release
+      - publish-manifest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda
+        with:
+          tag_name: ${{ needs.prepare-release.outputs.new_version }}
+          name: ${{ needs.prepare-release.outputs.new_version }}
+          generate_release_notes: true
+          make_latest: true

@@ -1,0 +1,14 @@
+rules:
+  # ==================== WEAK KEY DERIVATION ====================
+
+  - id: java-weak-pbkdf2-sha1
+    pattern-either:
+      - pattern: SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
+      - pattern: SecretKeyFactory.getInstance("pbkdf2withhmacsha1")
+    languages:
+      - java
+    severity: WARNING
+    message: "PBKDF2 with HMAC-SHA1 is weak for key derivation. Use PBKDF2WithHmacSHA256 or stronger."
+    metadata:
+      category: security
+      cwe: "CWE-327"

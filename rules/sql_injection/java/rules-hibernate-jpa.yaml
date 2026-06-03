@@ -1,0 +1,118 @@
+rules:
+- id: hibernate-createquery-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $SESSION.createQuery($HQL + $INPUT)
+    - pattern: $EM.createQuery($HQL + $INPUT)
+    - pattern: $SESSION.createQuery(... + $INPUT + ...)
+    - pattern: $EM.createQuery(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createquery-variable-concat
+  patterns:
+  - pattern-either:
+    - pattern: 'String $HQL = ... + $VAR + ...;
+
+        ...
+
+        $SESSION.createQuery($HQL);'
+    - pattern: 'String $HQL = ... + $VAR + ...;
+
+        ...
+
+        $EM.createQuery($HQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createquery-string-format
+  patterns:
+  - pattern-either:
+    - pattern: $SESSION.createQuery(String.format(...))
+    - pattern: $EM.createQuery(String.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createnativequery-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $SESSION.createNativeQuery($SQL + $INPUT)
+    - pattern: $EM.createNativeQuery($SQL + $INPUT)
+    - pattern: $SESSION.createSQLQuery($SQL + $INPUT)
+    - pattern: $SESSION.createNativeQuery(... + $INPUT + ...)
+    - pattern: $EM.createNativeQuery(... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createnativequery-variable-concat
+  patterns:
+  - pattern-either:
+    - pattern: 'String $SQL = ... + $VAR + ...;
+
+        ...
+
+        $SESSION.createNativeQuery($SQL);'
+    - pattern: 'String $SQL = ... + $VAR + ...;
+
+        ...
+
+        $EM.createNativeQuery($SQL);'
+    - pattern: 'String $SQL = ... + $VAR + ...;
+
+        ...
+
+        $SESSION.createSQLQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createnativequery-string-format
+  patterns:
+  - pattern-either:
+    - pattern: $SESSION.createNativeQuery(String.format(...))
+    - pattern: $EM.createNativeQuery(String.format(...))
+    - pattern: $SESSION.createSQLQuery(String.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH

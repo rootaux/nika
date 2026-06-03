@@ -1,0 +1,56 @@
+rules:
+  - id: xxe-sink-soapmessage-getsoap
+    patterns:
+      - pattern-either:
+          - pattern: $MSG.getSOAPPart()
+          - pattern: $MSG.getSOAPBody()
+          - pattern: $MSG.getSOAPHeader()
+      - metavariable-type:
+          metavariable: $MSG
+          types:
+            - javax.xml.soap.SOAPMessage
+    message: "XXE sink: SOAPMessage processing can include external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-messagefactory-createmessage
+    pattern-either:
+      - pattern: (javax.xml.soap.MessageFactory $FACTORY).createMessage(...)
+      - pattern: javax.xml.soap.MessageFactory.newInstance(...).createMessage(...)
+    message: "XXE sink: SOAP MessageFactory.createMessage() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-soappart-setcontent
+    patterns:
+      - pattern: $PART.setContent(...)
+      - metavariable-type:
+          metavariable: $PART
+          types:
+            - javax.xml.soap.SOAPPart
+    message: "XXE sink: SOAPPart.setContent() can process XML with external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-webservice-getport
+    patterns:
+      - pattern: $SERVICE.getPort(...)
+      - metavariable-type:
+          metavariable: $SERVICE
+          types:
+            - javax.xml.ws.Service
+    message: "XXE sink: JAX-WS Service.getPort() may process WSDL with external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

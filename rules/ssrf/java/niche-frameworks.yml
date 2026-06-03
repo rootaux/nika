@@ -1,0 +1,181 @@
+rules:
+  - id: java-ssrf-sinks-niche-frameworks
+    message: >-
+      Potentially unsafe outbound network request using niche framework detected.
+      This sink could allow SSRF if user-controlled input reaches this point.
+    severity: HIGH
+    metadata:
+      category: security
+      cwe: "CWE-918: Server-Side Request Forgery (SSRF)"
+      technology:
+        - java
+      subcategory:
+        - vuln
+      confidence: HIGH
+      library_group: "niche-frameworks"
+    languages:
+      - java
+    mode: taint
+    
+    pattern-sources:
+      - pattern: $ANYTHING
+    
+    pattern-sinks:
+      - pattern-either:
+          # ========================================
+          # Jetty HttpClient
+          # ========================================
+          
+          # Jetty HttpClient - URL/URI based request creation
+          - pattern: (org.eclipse.jetty.client.HttpClient $CLIENT).GET($TAINT)
+          - pattern: (org.eclipse.jetty.client.HttpClient $CLIENT).POST($TAINT)
+          - pattern: (org.eclipse.jetty.client.HttpClient $CLIENT).PUT($TAINT)
+          - pattern: (org.eclipse.jetty.client.HttpClient $CLIENT).newRequest($TAINT)
+          
+          # Jetty Request execution
+          - pattern: (org.eclipse.jetty.client.api.Request $REQ).send()
+          - pattern: (org.eclipse.jetty.client.api.Request $REQ).send(...)
+          
+          # Jetty ContentResponse (sync execution result)
+          - pattern: (org.eclipse.jetty.client.api.Request $REQ).getContent()
+          
+          # ========================================
+          # Retrofit
+          # ========================================
+          
+          # Retrofit Call execution - sync
+          - pattern: (retrofit2.Call $CALL).execute()
+          
+          # Retrofit Call execution - async
+          - pattern: (retrofit2.Call $CALL).enqueue(...)
+          
+          # Retrofit base URL setting (vulnerable if dynamic)
+          - pattern: (retrofit2.Retrofit.Builder $BUILDER).baseUrl($TAINT)
+          
+          # ========================================
+          # Vert.x HTTP Client
+          # ========================================
+          
+          # Vert.x HttpClient request methods - absolute URL
+          - pattern: (io.vertx.core.http.HttpClient $CLIENT).request(..., $TAINT, ...)
+          - pattern: (io.vertx.core.http.HttpClient $CLIENT).requestAbs(..., $TAINT, ...)
+          
+          # Vert.x HttpClient GET/POST/etc
+          - pattern: (io.vertx.core.http.HttpClient $CLIENT).get($TAINT, ...)
+          - pattern: (io.vertx.core.http.HttpClient $CLIENT).post($TAINT, ...)
+          - pattern: (io.vertx.core.http.HttpClient $CLIENT).put($TAINT, ...)
+          - pattern: (io.vertx.core.http.HttpClient $CLIENT).delete($TAINT, ...)
+          - pattern: (io.vertx.core.http.HttpClient $CLIENT).head($TAINT, ...)
+          - pattern: (io.vertx.core.http.HttpClient $CLIENT).getAbs($TAINT, ...)
+          - pattern: (io.vertx.core.http.HttpClient $CLIENT).postAbs($TAINT, ...)
+          - pattern: (io.vertx.core.http.HttpClient $CLIENT).putAbs($TAINT, ...)
+          - pattern: (io.vertx.core.http.HttpClient $CLIENT).deleteAbs($TAINT, ...)
+          - pattern: (io.vertx.core.http.HttpClient $CLIENT).headAbs($TAINT, ...)
+          
+          # Vert.x WebClient (higher-level API)
+          - pattern: (io.vertx.ext.web.client.WebClient $CLIENT).get($TAINT, ...)
+          - pattern: (io.vertx.ext.web.client.WebClient $CLIENT).post($TAINT, ...)
+          - pattern: (io.vertx.ext.web.client.WebClient $CLIENT).put($TAINT, ...)
+          - pattern: (io.vertx.ext.web.client.WebClient $CLIENT).delete($TAINT, ...)
+          - pattern: (io.vertx.ext.web.client.WebClient $CLIENT).patch($TAINT, ...)
+          - pattern: (io.vertx.ext.web.client.WebClient $CLIENT).head($TAINT, ...)
+          - pattern: (io.vertx.ext.web.client.WebClient $CLIENT).getAbs($TAINT)
+          - pattern: (io.vertx.ext.web.client.WebClient $CLIENT).postAbs($TAINT)
+          - pattern: (io.vertx.ext.web.client.WebClient $CLIENT).putAbs($TAINT)
+          - pattern: (io.vertx.ext.web.client.WebClient $CLIENT).deleteAbs($TAINT)
+          - pattern: (io.vertx.ext.web.client.WebClient $CLIENT).patchAbs($TAINT)
+          - pattern: (io.vertx.ext.web.client.WebClient $CLIENT).headAbs($TAINT)
+          
+          # Vert.x HttpRequest send() - reactive execution
+          - pattern: (io.vertx.ext.web.client.HttpRequest $REQ).send()
+          - pattern: (io.vertx.ext.web.client.HttpRequest $REQ).send(...)
+          - pattern: (io.vertx.ext.web.client.HttpRequest $REQ).sendStream(...)
+          - pattern: (io.vertx.ext.web.client.HttpRequest $REQ).sendBuffer(...)
+          - pattern: (io.vertx.ext.web.client.HttpRequest $REQ).sendJson(...)
+          - pattern: (io.vertx.ext.web.client.HttpRequest $REQ).sendForm(...)
+          
+          # ========================================
+          # Play Framework WS Client
+          # ========================================
+          
+          # Play WSClient URL setting
+          - pattern: (play.libs.ws.WSClient $CLIENT).url($TAINT)
+          
+          # Play WSRequest execution methods
+          - pattern: (play.libs.ws.WSRequest $REQ).get()
+          - pattern: (play.libs.ws.WSRequest $REQ).post($BODY)
+          - pattern: (play.libs.ws.WSRequest $REQ).put($BODY)
+          - pattern: (play.libs.ws.WSRequest $REQ).patch($BODY)
+          - pattern: (play.libs.ws.WSRequest $REQ).delete()
+          - pattern: (play.libs.ws.WSRequest $REQ).head()
+          - pattern: (play.libs.ws.WSRequest $REQ).options()
+          - pattern: (play.libs.ws.WSRequest $REQ).execute()
+          - pattern: (play.libs.ws.WSRequest $REQ).execute(...)
+          - pattern: (play.libs.ws.WSRequest $REQ).stream()
+          
+          # Play Scala API (if mixed Java/Scala codebase)
+          - pattern: (play.api.libs.ws.WSClient $CLIENT).url($TAINT)
+          
+          # ========================================
+          # Feign HTTP Client
+          # ========================================
+          
+          # Feign direct client execution
+          - pattern: (feign.Client $CLIENT).execute($TAINT, ...)
+          
+          # ========================================
+          # RESTEasy Client
+          # ========================================
+          
+          # RESTEasy ClientRequest
+          - pattern: new org.jboss.resteasy.client.ClientRequest($TAINT)
+          - pattern: new org.jboss.resteasy.client.ClientRequest($TAINT, ...)
+          
+          # RESTEasy ResteasyClient
+          - pattern: (org.jboss.resteasy.client.jaxrs.ResteasyClient $CLIENT).target($TAINT)
+          
+          # RESTEasy ClientBuilder
+          - pattern: (org.jboss.resteasy.client.jaxrs.ResteasyWebTarget $TARGET).request()
+          
+          # ========================================
+          # Micronaut HTTP Client
+          # ========================================
+          
+          # Micronaut HttpClient
+          - pattern: (io.micronaut.http.client.HttpClient $CLIENT).retrieve($TAINT, ...)
+          - pattern: (io.micronaut.http.client.HttpClient $CLIENT).exchange($TAINT, ...)
+          - pattern: (io.micronaut.http.client.HttpClient $CLIENT).toBlocking().retrieve($TAINT, ...)
+          - pattern: (io.micronaut.http.client.HttpClient $CLIENT).toBlocking().exchange($TAINT, ...)
+          
+          # Micronaut blocking HTTP client
+          - pattern: (io.micronaut.http.client.BlockingHttpClient $CLIENT).retrieve($TAINT, ...)
+          - pattern: (io.micronaut.http.client.BlockingHttpClient $CLIENT).exchange($TAINT, ...)
+          
+          # ========================================
+          # Reactor Netty HttpClient
+          # ========================================
+          
+          # Reactor Netty HttpClient - reactive HTTP client
+          - pattern: (reactor.netty.http.client.HttpClient $CLIENT).get().uri($TAINT)
+          - pattern: (reactor.netty.http.client.HttpClient $CLIENT).post().uri($TAINT)
+          - pattern: (reactor.netty.http.client.HttpClient $CLIENT).put().uri($TAINT)
+          - pattern: (reactor.netty.http.client.HttpClient $CLIENT).delete().uri($TAINT)
+          - pattern: (reactor.netty.http.client.HttpClient $CLIENT).patch().uri($TAINT)
+          - pattern: (reactor.netty.http.client.HttpClient $CLIENT).head().uri($TAINT)
+          - pattern: (reactor.netty.http.client.HttpClient $CLIENT).request(...).uri($TAINT)
+          
+          # Reactor Netty response methods (triggers execution)
+          - pattern: (reactor.netty.http.client.HttpClient.ResponseReceiver $REC).response()
+          - pattern: (reactor.netty.http.client.HttpClient.ResponseReceiver $REC).responseContent()
+          - pattern: (reactor.netty.http.client.HttpClient.ResponseReceiver $REC).responseSingle(...)
+          
+          # ========================================
+          # Fuel (Kotlin HTTP Library - Java Interop)
+          # ========================================
+          
+          # Fuel GET/POST/etc (if called from Java)
+          - pattern: com.github.kittinunf.fuel.Fuel.get($TAINT, ...)
+          - pattern: com.github.kittinunf.fuel.Fuel.post($TAINT, ...)
+          - pattern: com.github.kittinunf.fuel.Fuel.put($TAINT, ...)
+          - pattern: com.github.kittinunf.fuel.Fuel.delete($TAINT, ...)
+          - pattern: com.github.kittinunf.fuel.Fuel.patch($TAINT, ...)

@@ -1,0 +1,18 @@
+rules:
+  - id: java-command-injection-process-builder
+    mode: taint
+    languages:
+      - java
+    severity: ERROR
+    message: >-
+      Potential Command Injection.
+
+    pattern-sources:
+      - pattern: ProcessBuilder.new $CONSTR(...)
+      - pattern: new ProcessBuilder($PARAM)
+      - pattern: new ProcessBuilder()
+
+    pattern-sinks:
+      - pattern: $PB.start()
+      - pattern: $PB.command()
+      - pattern: $PB.toHandle()

@@ -1,0 +1,442 @@
+rules:
+- id: jdbc-executequery-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $STMT.executeQuery($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-execute-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $STMT.execute($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-executeupdate-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $STMT.executeUpdate($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-preparestatement-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $CONN.prepareStatement($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-preparecall-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $CONN.prepareCall($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-addbatch-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $STMT.addBatch($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-query-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $TEMPLATE.query($SB.toString(), ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForObject-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $TEMPLATE.queryForObject($SB.toString(), ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForList-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $TEMPLATE.queryForList($SB.toString(), ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForMap-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $TEMPLATE.queryForMap($SB.toString(), ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-update-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $TEMPLATE.update($SB.toString(), ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-execute-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $TEMPLATE.execute($SB.toString(), ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-batchUpdate-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $TEMPLATE.batchUpdate($SB.toString(), ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createQuery-stringbuilder-session
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $SESSION.createQuery($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createQuery-stringbuilder-em
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $EM.createQuery($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createNativeQuery-stringbuilder-session
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $SESSION.createNativeQuery($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createNativeQuery-stringbuilder-em
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $EM.createNativeQuery($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-createQuery-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $HANDLE.createQuery($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-createUpdate-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $HANDLE.createUpdate($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-execute-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $HANDLE.execute($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-select-stringbuilder
+  patterns:
+  - pattern: 'StringBuilder $SB = new StringBuilder(...);
+
+      ...
+
+      $SB.append(...);
+
+      ...
+
+      $HANDLE.select($SB.toString());'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH

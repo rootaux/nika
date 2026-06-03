@@ -1,0 +1,30 @@
+rules:
+  # ==================== WEAK MAC ALGORITHMS ====================
+
+  - id: java-weak-mac-sha1
+    pattern-either:
+      - pattern: Mac.getInstance("HmacSHA1")
+      - pattern: Mac.getInstance("HMACSHA1")
+      - pattern: Mac.getInstance("hmacsha1")
+      - pattern: Mac.getInstance("HMacSHA1")
+    languages:
+      - java
+    severity: WARNING
+    message: "HMAC-SHA1 is weak. Use HmacSHA256 or stronger."
+    metadata:
+      category: security
+      cwe: "CWE-328"
+
+  - id: java-weak-mac-md5
+    pattern-either:
+      - pattern: Mac.getInstance("HmacMD5")
+      - pattern: Mac.getInstance("HMACMD5")
+      - pattern: Mac.getInstance("hmacmd5")
+      - pattern: Mac.getInstance("HMacMD5")
+    languages:
+      - java
+    severity: ERROR
+    message: "HMAC-MD5 is cryptographically broken. Use HmacSHA256 or stronger."
+    metadata:
+      category: security
+      cwe: "CWE-328"

@@ -1,0 +1,763 @@
+rules:
+- id: jdbc-executequery-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $STMT.executeQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-execute-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $STMT.execute($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-executeupdate-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $STMT.executeUpdate($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-preparestatement-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $CONN.prepareStatement($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-preparecall-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $CONN.prepareCall($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-addbatch-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $STMT.addBatch($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-query-messageformat-direct
+  patterns:
+  - pattern: $TEMPLATE.query(MessageFormat.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-query-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $TEMPLATE.query($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForObject-messageformat-direct
+  patterns:
+  - pattern: $TEMPLATE.queryForObject(MessageFormat.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForObject-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $TEMPLATE.queryForObject($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForList-messageformat-direct
+  patterns:
+  - pattern: $TEMPLATE.queryForList(MessageFormat.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForList-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $TEMPLATE.queryForList($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForMap-messageformat-direct
+  patterns:
+  - pattern: $TEMPLATE.queryForMap(MessageFormat.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-queryForMap-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $TEMPLATE.queryForMap($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-update-messageformat-direct
+  patterns:
+  - pattern: $TEMPLATE.update(MessageFormat.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-update-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $TEMPLATE.update($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-execute-messageformat-direct
+  patterns:
+  - pattern: $TEMPLATE.execute(MessageFormat.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-execute-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $TEMPLATE.execute($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-batchUpdate-messageformat-direct
+  patterns:
+  - pattern: $TEMPLATE.batchUpdate(MessageFormat.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: spring-jdbctemplate-batchUpdate-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $TEMPLATE.batchUpdate($SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createquery-messageformat-direct-session
+  patterns:
+  - pattern: $SESSION.createQuery(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createquery-messageformat-variable-session
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $SESSION.createQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createquery-messageformat-direct-em
+  patterns:
+  - pattern: $EM.createQuery(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createquery-messageformat-variable-em
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $EM.createQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createnativequery-messageformat-direct-session
+  patterns:
+  - pattern: $SESSION.createNativeQuery(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createnativequery-messageformat-variable-session
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $SESSION.createNativeQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createnativequery-messageformat-direct-em
+  patterns:
+  - pattern: $EM.createNativeQuery(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createnativequery-messageformat-variable-em
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $EM.createNativeQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createsqlquery-messageformat-direct-session
+  patterns:
+  - pattern: $SESSION.createSQLQuery(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: hibernate-createsqlquery-messageformat-variable-session
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $SESSION.createSQLQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-createQuery-messageformat-direct
+  patterns:
+  - pattern: $HANDLE.createQuery(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-createQuery-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $HANDLE.createQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-createUpdate-messageformat-direct
+  patterns:
+  - pattern: $HANDLE.createUpdate(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-createUpdate-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $HANDLE.createUpdate($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-execute-messageformat-direct
+  patterns:
+  - pattern: $HANDLE.execute(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-execute-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $HANDLE.execute($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-select-messageformat-direct
+  patterns:
+  - pattern: $HANDLE.select(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbi-select-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $HANDLE.select($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetch-messageformat-direct
+  patterns:
+  - pattern: $DSL.fetch(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetch-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $DSL.fetch($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchOne-messageformat-direct
+  patterns:
+  - pattern: $DSL.fetchOne(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchOne-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $DSL.fetchOne($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchAny-messageformat-direct
+  patterns:
+  - pattern: $DSL.fetchAny(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchAny-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $DSL.fetchAny($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchOptional-messageformat-direct
+  patterns:
+  - pattern: $DSL.fetchOptional(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-fetchOptional-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $DSL.fetchOptional($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-execute-messageformat-direct
+  patterns:
+  - pattern: $DSL.execute(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-execute-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $DSL.execute($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-query-messageformat-direct
+  patterns:
+  - pattern: $DSL.query(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jooq-query-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $DSL.query($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH

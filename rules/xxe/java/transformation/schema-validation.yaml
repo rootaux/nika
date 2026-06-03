@@ -1,0 +1,35 @@
+rules:
+  - id: xxe-sink-schemafactory-newschema
+    patterns:
+      - pattern: $FACTORY.newSchema(...)
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.validation.SchemaFactory
+      - pattern-not: $FACTORY.newSchema(new javax.xml.transform.stream.StreamSource(...))
+      - pattern-not: $FACTORY.newSchema(new javax.xml.transform.sax.SAXSource(...))
+      - pattern-not: $FACTORY.newSchema(new javax.xml.transform.Source[] {... })
+    message: "XXE sink: SchemaFactory.newSchema() can process external entities from schema sources"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-validator-validate
+    patterns:
+      - pattern: $VALIDATOR.validate(...)
+      - metavariable-type:
+          metavariable: $VALIDATOR
+          types:
+            - javax.xml.validation.Validator
+      - pattern-not: $VALIDATOR.validate(new javax.xml.transform.stream.StreamSource(...), ...)
+      - pattern-not: $VALIDATOR.validate(new javax.xml.transform.stream.StreamSource(...))
+      - pattern-not: $VALIDATOR.validate(new javax.xml.transform.sax.SAXSource(...), ...)
+      - pattern-not: $VALIDATOR.validate(new javax.xml.transform.sax.SAXSource(...))
+    message: "XXE sink: Validator.validate() can process external entities from XML source"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

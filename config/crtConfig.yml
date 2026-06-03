@@ -1,0 +1,49 @@
+LLMConfig:
+  API_KEY: 'API_TOKEN'
+  LLM_URL: 'https://chatgpt.com/api/v1'
+  MODEL: 'global:LLM_GLOBAL_GPT_5_STG'
+  MAX_TOOL_CALLS: 10
+  MAX_ITERATIONS: 15
+  RECURSION_LIMIT: 100
+  PROMPT_COST_PER_MILLION: 1.25
+  COMPLETION_COST_PER_MILLION: 10.0
+
+llm_review_enabled: false
+aggressiveScan: false
+
+vulnerabilityConfig:
+   - command_injection
+   - code_injection
+   - order_scan
+   - command_injection
+   - sqli
+   - path_traversal
+   - ssrf
+   - template_injection
+   - deserialization
+   - cryptographic_failure
+   - unsafe_reflection
+   - xxe
+
+sources:
+  annotations:
+    - "@RequestMapping"
+    - "@GetMapping"
+    - "@PostMapping"
+    - "@PutMapping"
+    - "@DeleteMapping"
+    - "@PatchMapping"
+    - "@Path"
+
+vulnerabilityArgs:
+  sensitive_logging:
+    pii_keywords: ["private", "privateKey", "username", "password"]
+
+tools:
+  astrail:
+    astrailpath: '/opt/astrail/astrail'
+    javasrc2cpg: '/opt/astrail/javasrc2cpg'
+    port: 9004
+
+  opengrep:
+    path: '/usr/local/bin/opengrep'

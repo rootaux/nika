@@ -1,0 +1,44 @@
+rules:
+  - id: xxe-sink-xpath-evaluate
+    patterns:
+      - pattern: $XPATH.evaluate(...)
+      - metavariable-type:
+          metavariable: $XPATH
+          types:
+            - javax.xml.xpath.XPath
+      - pattern-not: $XPATH.evaluate(..., new javax.xml.transform.stream.StreamSource(...), ...)
+      - pattern-not: $XPATH.evaluate(..., new javax.xml.transform.stream.StreamSource(...))
+    message: "XXE sink: XPath.evaluate() can process external entities from InputSource"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-xquery-saxon-contextitem
+    patterns:
+      - pattern: $CTX.setContextItem(...)
+      - metavariable-type:
+          metavariable: $CTX
+          types:
+            - net.sf.saxon.query.DynamicQueryContext
+    message: "XXE sink: Saxon XQuery processing can include external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-xquery-saxon-compile
+    patterns:
+      - pattern: $CTX.compileQuery(...)
+      - metavariable-type:
+          metavariable: $CTX
+          types:
+            - net.sf.saxon.query.StaticQueryContext
+    message: "XXE sink: Saxon XQuery compilation can include external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

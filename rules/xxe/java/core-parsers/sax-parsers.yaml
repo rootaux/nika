@@ -1,0 +1,77 @@
+rules:
+  - id: xxe-sink-saxparser-parse
+    patterns:
+      - pattern: $PARSER.parse(...)
+      - metavariable-type:
+          metavariable: $PARSER
+          types:
+            - javax.xml.parsers.SAXParser
+    message: "XXE sink: SAXParser.parse() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-saxparserfactory-newsaxparser
+    pattern-either:
+      - pattern: (javax.xml.parsers.SAXParserFactory $FACTORY).newSAXParser()
+      - pattern: javax.xml.parsers.SAXParserFactory.newInstance(...).newSAXParser()
+    message: "XXE sink: SAXParserFactory creates parsers that may be vulnerable to XXE"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-xmlreader-parse
+    patterns:
+      - pattern: $READER.parse(...)
+      - metavariable-type:
+          metavariable: $READER
+          types:
+            - org.xml.sax.XMLReader
+    message: "XXE sink: XMLReader.parse() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-xmlreaderfactory-createxmlreader
+    pattern-either:
+      - pattern: org.xml.sax.helpers.XMLReaderFactory.createXMLReader(...)
+    message: "XXE sink: XMLReaderFactory creates parsers that may be vulnerable to XXE"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-digester-parse
+    patterns:
+      - pattern: $DIGESTER.parse(...)
+      - metavariable-type:
+          metavariable: $DIGESTER
+          types:
+            - org.apache.commons.digester.Digester
+    message: "XXE sink: Apache Commons Digester.parse() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-digester3-parse
+    patterns:
+      - pattern: $DIGESTER.parse(...)
+      - metavariable-type:
+          metavariable: $DIGESTER
+          types:
+            - org.apache.commons.digester3.Digester
+    message: "XXE sink: Apache Commons Digester3.parse() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

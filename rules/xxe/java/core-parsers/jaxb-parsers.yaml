@@ -1,0 +1,50 @@
+rules:
+  - id: xxe-sink-jaxb-unmarshaller-unmarshal
+    patterns:
+      - pattern: $UNMARSHALLER.unmarshal(...)
+      - metavariable-type:
+          metavariable: $UNMARSHALLER
+          types:
+            - javax.xml.bind.Unmarshaller
+    message: "XXE sink: JAXB Unmarshaller.unmarshal() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-jakarta-jaxb-unmarshaller-unmarshal
+    patterns:
+      - pattern: $UNMARSHALLER.unmarshal(...)
+      - metavariable-type:
+          metavariable: $UNMARSHALLER
+          types:
+            - jakarta.xml.bind.Unmarshaller
+    message: "XXE sink: Jakarta JAXB Unmarshaller.unmarshal() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-jaxb-jaxbcontext-createunmarshaller
+    pattern-either:
+      - pattern: (javax.xml.bind.JAXBContext $CTX).createUnmarshaller()
+      - pattern: javax.xml.bind.JAXBContext.newInstance(...).createUnmarshaller()
+    message: "XXE sink: JAXBContext creates unmarshallers that may be vulnerable to XXE"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-jakarta-jaxb-jaxbcontext-createunmarshaller
+    pattern-either:
+      - pattern: (jakarta.xml.bind.JAXBContext $CTX).createUnmarshaller()
+      - pattern: jakarta.xml.bind.JAXBContext.newInstance(...).createUnmarshaller()
+    message: "XXE sink: Jakarta JAXBContext creates unmarshallers that may be vulnerable to XXE"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

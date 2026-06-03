@@ -1,0 +1,19 @@
+rules:
+  - id: insecure-jms-deserialization
+    message: Potential Java deserialization.
+    severity: HIGH
+    languages:
+      - java
+    mode: taint
+    pattern-inside: |
+      class $CLASS_NAME implements MessageListener {
+        ...
+        onMessage(Message $ARG) {
+          ...
+        }
+        ...
+      }
+    pattern-sources:
+      - pattern: ObjectMessage $VAR = (ObjectMessage) $ARG;
+    pattern-sinks:
+      - pattern: $VAR.getObject(...)

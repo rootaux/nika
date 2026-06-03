@@ -1,0 +1,15 @@
+rules:
+  - id: java-ssrf-http-executor
+    mode: taint
+    languages:
+      - java
+    severity: ERROR
+    message: >-
+      Potential SSRF via HTTP Executor.
+
+    pattern-sources:
+      - pattern: HttpPostExecutor.builder()
+      - pattern: HttpGetExecutor.builder()
+
+    pattern-sinks:
+      - pattern: $RT.url($PARAM)

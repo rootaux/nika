@@ -1,0 +1,221 @@
+rules:
+  - id: xxe-sink-streamsource-validator-validate
+    patterns:
+      - pattern-either:
+          - pattern: $VALIDATOR.validate(new javax.xml.transform.stream.StreamSource(...), ...)
+          - pattern: $VALIDATOR.validate(new javax.xml.transform.stream.StreamSource(...))
+      - metavariable-type:
+          metavariable: $VALIDATOR
+          types:
+            - javax.xml.validation.Validator
+    message: "XXE sink: Validator.validate() with StreamSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+      owasp: "A05:2021 - Security Misconfiguration"
+
+  - id: xxe-sink-streamsource-transformer-transform
+    patterns:
+      - pattern-either:
+          - pattern: $TRANSFORMER.transform(new javax.xml.transform.stream.StreamSource(...), ...)
+          - pattern: $TRANSFORMER.transform($SRC, new javax.xml.transform.stream.StreamSource(...))
+      - metavariable-type:
+          metavariable: $TRANSFORMER
+          types:
+            - javax.xml.transform.Transformer
+    message: "XXE sink: Transformer.transform() with StreamSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-streamsource-schemafactory-newschema-inline
+    patterns:
+      - pattern: $FACTORY.newSchema(new javax.xml.transform.stream.StreamSource(...))
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.validation.SchemaFactory
+    message: "XXE sink: SchemaFactory.newSchema() with StreamSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-streamsource-schemafactory-newschema-array
+    patterns:
+      - pattern: $FACTORY.newSchema(new javax.xml.transform.Source[] {... })
+      - metavariable-pattern:
+          metavariable: $FACTORY
+          pattern: $VAR
+      - metavariable-type:
+          metavariable: $VAR
+          types:
+            - javax.xml.validation.SchemaFactory
+    message: "XXE sink: SchemaFactory.newSchema() with Source array can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-streamsource-unmarshaller-unmarshal
+    patterns:
+      - pattern: $UNMARSHALLER.unmarshal(new javax.xml.transform.stream.StreamSource(...))
+      - metavariable-type:
+          metavariable: $UNMARSHALLER
+          types:
+            - javax.xml.bind.Unmarshaller
+            - jakarta.xml.bind.Unmarshaller
+    message: "XXE sink: Unmarshaller.unmarshal() with StreamSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-streamsource-transformerfactory-newtemplates
+    patterns:
+      - pattern: $FACTORY.newTemplates(new javax.xml.transform.stream.StreamSource(...))
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.transform.TransformerFactory
+    message: "XXE sink: TransformerFactory.newTemplates() with StreamSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-streamsource-transformerfactory-newtransformer
+    patterns:
+      - pattern: $FACTORY.newTransformer(new javax.xml.transform.stream.StreamSource(...))
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.transform.TransformerFactory
+    message: "XXE sink: TransformerFactory.newTransformer() with StreamSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-streamsource-saxtransformerfactory-newtransformerhandler
+    patterns:
+      - pattern: $FACTORY.newTransformerHandler(new javax.xml.transform.stream.StreamSource(...))
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.transform.sax.SAXTransformerFactory
+    message: "XXE sink: SAXTransformerFactory.newTransformerHandler() with StreamSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-streamsource-saxtransformerfactory-newxmlfilter
+    patterns:
+      - pattern: $FACTORY.newXMLFilter(new javax.xml.transform.stream.StreamSource(...))
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.transform.sax.SAXTransformerFactory
+    message: "XXE sink: SAXTransformerFactory.newXMLFilter() with StreamSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-streamsource-xpath-evaluate
+    patterns:
+      - pattern-either:
+          - pattern: $XPATH.evaluate(..., new javax.xml.transform.stream.StreamSource(...), ...)
+          - pattern: $XPATH.evaluate(..., new javax.xml.transform.stream.StreamSource(...))
+      - metavariable-type:
+          metavariable: $XPATH
+          types:
+            - javax.xml.xpath.XPath
+    message: "XXE sink: XPath.evaluate() with StreamSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-streamsource-spring-jaxb2marshaller
+    patterns:
+      - pattern: $MARSHALLER.unmarshal(new javax.xml.transform.stream.StreamSource(...))
+      - metavariable-type:
+          metavariable: $MARSHALLER
+          types:
+            - org.springframework.oxm.jaxb.Jaxb2Marshaller
+    message: "XXE sink: Spring Jaxb2Marshaller.unmarshal() with StreamSource can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-streamsource-variable-then-use
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern: |
+                  $SOURCE = new javax.xml.transform.stream.StreamSource(...);
+                  ...
+                  $VALIDATOR.validate($SOURCE, ...);
+              - metavariable-type:
+                  metavariable: $VALIDATOR
+                  types:
+                    - javax.xml.validation.Validator
+          - patterns:
+              - pattern: |
+                  $SOURCE = new javax.xml.transform.stream.StreamSource(...);
+                  ...
+                  $TRANSFORMER.transform($SOURCE, ...);
+              - metavariable-type:
+                  metavariable: $TRANSFORMER
+                  types:
+                    - javax.xml.transform.Transformer
+          - patterns:
+              - pattern: |
+                  $SOURCE = new javax.xml.transform.stream.StreamSource(...);
+                  ...
+                  $FACTORY.newSchema($SOURCE);
+              - metavariable-type:
+                  metavariable: $FACTORY
+                  types:
+                    - javax.xml.validation.SchemaFactory
+          - patterns:
+              - pattern: |
+                  $SOURCE = new javax.xml.transform.stream.StreamSource(...);
+                  ...
+                  $UNMARSHALLER.unmarshal($SOURCE);
+              - metavariable-type:
+                  metavariable: $UNMARSHALLER
+                  types:
+                    - javax.xml.bind.Unmarshaller
+                    - jakarta.xml.bind.Unmarshaller
+          - patterns:
+              - pattern: |
+                  $SOURCE = new javax.xml.transform.stream.StreamSource(...);
+                  ...
+                  $FACTORY.newTemplates($SOURCE);
+              - metavariable-type:
+                  metavariable: $FACTORY
+                  types:
+                    - javax.xml.transform.TransformerFactory
+    message: "XXE sink: StreamSource variable used with XML parser can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

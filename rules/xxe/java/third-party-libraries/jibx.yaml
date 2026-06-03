@@ -1,0 +1,14 @@
+rules:
+  - id: xxe-sink-jibx-unmarshallingcontext
+    patterns:
+      - pattern: $CTX.unmarshalDocument(...)
+      - metavariable-type:
+          metavariable: $CTX
+          types:
+            - org.jibx.runtime.IUnmarshallingContext
+    message: "XXE sink: JiBX unmarshalDocument() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

@@ -1,0 +1,128 @@
+rules:
+- id: sql-dynamic-join-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $STMT.executeQuery("... JOIN " + $CLAUSE)
+    - pattern: $STMT.executeQuery("... INNER JOIN " + $TABLE)
+    - pattern: $STMT.executeQuery("... LEFT JOIN " + $TABLE)
+    - pattern: $STMT.executeQuery("... RIGHT JOIN " + $TABLE)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-dynamic-join-variable-concat
+  patterns:
+  - pattern: 'String $SQL = "... JOIN " + $CLAUSE + ...;
+
+      ...
+
+      $STMT.executeQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-dynamic-having-direct-concat
+  patterns:
+  - pattern: $STMT.executeQuery("... HAVING " + $CONDITION)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-dynamic-having-variable-concat
+  patterns:
+  - pattern: 'String $SQL = "... HAVING " + $CONDITION + ...;
+
+      ...
+
+      $STMT.executeQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-dynamic-set-direct-concat
+  patterns:
+  - pattern: $STMT.executeUpdate("UPDATE ... SET " + $CLAUSE)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-dynamic-set-variable-concat
+  patterns:
+  - pattern: 'String $SQL = "UPDATE ... SET " + $CLAUSE + ...;
+
+      ...
+
+      $STMT.executeUpdate($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-dynamic-limit-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $STMT.executeQuery("... LIMIT " + $VALUE)
+    - pattern: $STMT.executeQuery("... OFFSET " + $VALUE)
+    - pattern: $STMT.executeQuery("... LIMIT " + $LIMIT + " OFFSET " + $OFFSET)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-dynamic-limit-variable-concat
+  patterns:
+  - pattern: 'String $SQL = "... LIMIT " + $VALUE + ...;
+
+      ...
+
+      $STMT.executeQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH

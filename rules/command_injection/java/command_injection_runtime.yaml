@@ -1,0 +1,14 @@
+rules:
+  - id: java-command-injection-runtime
+    mode: taint
+    languages:
+      - java
+    severity: ERROR
+    message: >-
+      Potential Command Injection.
+
+    pattern-sources:
+      - pattern: Runtime.getRuntime()
+
+    pattern-sinks:
+      - pattern: $RT.exec($PARAM)

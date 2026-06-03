@@ -1,0 +1,42 @@
+rules:
+  - id: xxe-sink-jackson-xmlmapper-readvalue
+    patterns:
+      - pattern: $MAPPER.readValue(...)
+      - metavariable-type:
+          metavariable: $MAPPER
+          types:
+            - com.fasterxml.jackson.dataformat.xml.XmlMapper
+    message: "XXE sink: Jackson XmlMapper.readValue() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-jackson-xmlmapper-readtree
+    patterns:
+      - pattern: $MAPPER.readTree(...)
+      - metavariable-type:
+          metavariable: $MAPPER
+          types:
+            - com.fasterxml.jackson.dataformat.xml.XmlMapper
+    message: "XXE sink: Jackson XmlMapper.readTree() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-jackson-xmlfactory-createparser
+    patterns:
+      - pattern: $FACTORY.createParser(...)
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - com.fasterxml.jackson.dataformat.xml.XmlFactory
+    message: "XXE sink: Jackson XmlFactory.createParser() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

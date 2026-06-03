@@ -1,0 +1,17 @@
+rules:
+  - id: java-jndi-lookup-deserialization
+    mode: taint
+    languages:
+      - java
+    severity: ERROR
+    message: >-
+      Potential Java deserialization.
+
+    pattern-sources:
+      - pattern: InitialContext()
+      - pattern: InitialContext(...,$ARG,...)
+      - pattern: new InitialContext()
+      - pattern: new InitialContext(...,$ARG,...)
+
+    pattern-sinks:
+      - pattern: $IC.lookup(...,$ARG,...)

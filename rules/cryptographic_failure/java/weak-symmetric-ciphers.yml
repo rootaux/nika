@@ -1,0 +1,166 @@
+rules:
+  # ==================== WEAK SYMMETRIC CIPHERS ====================
+
+  - id: java-weak-cipher-des
+    pattern-either:
+      - pattern: Cipher.getInstance("DES")
+      - pattern: Cipher.getInstance("des")
+      - pattern: Cipher.getInstance("DES/CBC/PKCS5Padding")
+      - pattern: Cipher.getInstance("DES/CBC/NoPadding")
+      - pattern: Cipher.getInstance("DES/ECB/PKCS5Padding")
+      - pattern: KeyGenerator.getInstance("DES")
+      - pattern: KeyGenerator.getInstance("des")
+      - pattern: SecretKeyFactory.getInstance("DES")
+      - pattern: SecretKeyFactory.getInstance("des")
+    languages:
+      - java
+    severity: ERROR
+    message: "DES is insecure due to its small key size. Use AES instead."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+      owasp: "A02:2021 - Cryptographic Failures"
+
+  - id: java-weak-cipher-3des
+    pattern-either:
+      - pattern: Cipher.getInstance("DESede")
+      - pattern: Cipher.getInstance("desede")
+      - pattern: Cipher.getInstance("DESede/CBC/PKCS5Padding")
+      - pattern: Cipher.getInstance("DESede/ECB/PKCS5Padding")
+      - pattern: Cipher.getInstance("3DES")
+      - pattern: Cipher.getInstance("3des")
+      - pattern: Cipher.getInstance("TripleDES")
+      - pattern: KeyGenerator.getInstance("DESede")
+      - pattern: KeyGenerator.getInstance("desede")
+      - pattern: KeyGenerator.getInstance("TripleDES")
+      - pattern: SecretKeyFactory.getInstance("DESede")
+      - pattern: SecretKeyFactory.getInstance("desede")
+    languages:
+      - java
+    severity: ERROR
+    message: "3DES/DESede is deprecated and has known vulnerabilities. Use AES instead."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+      owasp: "A02:2021 - Cryptographic Failures"
+
+  - id: java-weak-cipher-rc2
+    pattern-either:
+      - pattern: Cipher.getInstance("RC2")
+      - pattern: Cipher.getInstance("rc2")
+      - pattern: KeyGenerator.getInstance("RC2")
+      - pattern: KeyGenerator.getInstance("rc2")
+    languages:
+      - java
+    severity: ERROR
+    message: "RC2 is insecure and should not be used. Use AES instead."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+
+  - id: java-weak-cipher-rc4
+    pattern-either:
+      - pattern: Cipher.getInstance("RC4")
+      - pattern: Cipher.getInstance("rc4")
+      - pattern: Cipher.getInstance("ARCFOUR")
+      - pattern: Cipher.getInstance("arcfour")
+      - pattern: KeyGenerator.getInstance("RC4")
+      - pattern: KeyGenerator.getInstance("ARCFOUR")
+      - pattern: KeyGenerator.getInstance("rc4")
+      - pattern: KeyGenerator.getInstance("arcfour")
+    languages:
+      - java
+    severity: ERROR
+    message: "RC4 has known vulnerabilities and must not be used. Use AES-GCM instead."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+      owasp: "A02:2021 - Cryptographic Failures"
+
+  - id: java-weak-cipher-blowfish
+    pattern-either:
+      - pattern: Cipher.getInstance("Blowfish")
+      - pattern: Cipher.getInstance("blowfish")
+      - pattern: Cipher.getInstance("BLOWFISH")
+      - pattern: KeyGenerator.getInstance("Blowfish")
+      - pattern: KeyGenerator.getInstance("blowfish")
+    languages:
+      - java
+    severity: WARNING
+    message: "Blowfish has a 64-bit block size making it vulnerable to birthday attacks. Use AES instead."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+
+  - id: java-weak-cipher-idea
+    pattern-either:
+      - pattern: Cipher.getInstance("IDEA")
+      - pattern: Cipher.getInstance("idea")
+      - pattern: KeyGenerator.getInstance("IDEA")
+      - pattern: KeyGenerator.getInstance("idea")
+    languages:
+      - java
+    severity: WARNING
+    message: "IDEA is deprecated and has known weaknesses. Use AES instead."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+
+  - id: java-weak-cipher-cast5
+    pattern-either:
+      - pattern: Cipher.getInstance("CAST5")
+      - pattern: Cipher.getInstance("cast5")
+      - pattern: Cipher.getInstance("CAST-128")
+      - pattern: Cipher.getInstance("CAST128")
+      - pattern: KeyGenerator.getInstance("CAST5")
+      - pattern: KeyGenerator.getInstance("CAST-128")
+    languages:
+      - java
+    severity: WARNING
+    message: "CAST5/CAST-128 is deprecated and has a small block size. Use AES instead."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+
+  - id: java-weak-cipher-gost
+    pattern-either:
+      - pattern: Cipher.getInstance("GOST")
+      - pattern: Cipher.getInstance("gost")
+      - pattern: Cipher.getInstance("GOST28147")
+      - pattern: KeyGenerator.getInstance("GOST")
+      - pattern: KeyGenerator.getInstance("GOST28147")
+    languages:
+      - java
+    severity: WARNING
+    message: "GOST 28147 has known weaknesses and limited international scrutiny. Use AES instead."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+
+  - id: java-weak-cipher-skipjack
+    pattern-either:
+      - pattern: Cipher.getInstance("Skipjack")
+      - pattern: Cipher.getInstance("SKIPJACK")
+      - pattern: Cipher.getInstance("skipjack")
+      - pattern: KeyGenerator.getInstance("Skipjack")
+      - pattern: KeyGenerator.getInstance("SKIPJACK")
+    languages:
+      - java
+    severity: ERROR
+    message: "Skipjack is cryptographically broken and must not be used. Use AES instead."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+
+  - id: java-null-cipher
+    pattern-either:
+      - pattern: new NullCipher()
+      - pattern: Cipher.getInstance("NULL")
+      - pattern: Cipher.getInstance("null")
+    languages:
+      - java
+    severity: ERROR
+    message: "NullCipher provides no encryption. This should never be used in production."
+    metadata:
+      category: security
+      cwe: "CWE-327"

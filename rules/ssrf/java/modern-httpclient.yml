@@ -1,0 +1,112 @@
+rules:
+  - id: java-ssrf-sinks-modern-httpclient
+    message: >-
+      Potentially unsafe outbound network request using modern HTTP client detected.
+      This sink could allow SSRF if user-controlled input reaches this point.
+    severity: HIGH
+    metadata:
+      category: security
+      cwe: "CWE-918: Server-Side Request Forgery (SSRF)"
+      technology:
+        - java
+      subcategory:
+        - vuln
+      confidence: HIGH
+      library_group: "modern-httpclient"
+    languages:
+      - java
+    mode: taint
+    
+    pattern-sources:
+      - pattern: $ANYTHING
+    
+    pattern-sinks:
+      - pattern-either:
+          # ========================================
+          # OkHttp Client
+          # ========================================
+          
+          # Request.Builder.url() - sets target URL for request
+          - pattern: (okhttp3.Request.Builder $BUILDER).url($TAINT)
+          
+          # OkHttpClient.newCall().execute() - synchronous request execution
+          - pattern: (okhttp3.Call $CALL).execute()
+          
+          # OkHttpClient.newCall().enqueue() - asynchronous request execution
+          - pattern: (okhttp3.Call $CALL).enqueue(...)
+          
+          # Direct newCall pattern
+          - pattern: (okhttp3.OkHttpClient $CLIENT).newCall($TAINT)
+          
+          # ========================================
+          # Unirest
+          # ========================================
+          
+          # Unirest request execution
+          - pattern: (com.mashape.unirest.http.HttpRequest $REQ).asString()
+          - pattern: (com.mashape.unirest.http.HttpRequest $REQ).asJson()
+          - pattern: (com.mashape.unirest.http.HttpRequest $REQ).asBinary()
+          - pattern: (com.mashape.unirest.http.HttpRequest $REQ).asObject(...)
+          
+          # Unirest URL builders
+          - pattern: com.mashape.unirest.http.Unirest.get($TAINT)
+          - pattern: com.mashape.unirest.http.Unirest.post($TAINT)
+          - pattern: com.mashape.unirest.http.Unirest.put($TAINT)
+          - pattern: com.mashape.unirest.http.Unirest.patch($TAINT)
+          - pattern: com.mashape.unirest.http.Unirest.delete($TAINT)
+          - pattern: com.mashape.unirest.http.Unirest.head($TAINT)
+          - pattern: com.mashape.unirest.http.Unirest.options($TAINT)
+          
+          # Kong Unirest (newer version)
+          - pattern: kong.unirest.Unirest.get($TAINT)
+          - pattern: kong.unirest.Unirest.post($TAINT)
+          - pattern: kong.unirest.Unirest.put($TAINT)
+          - pattern: kong.unirest.Unirest.patch($TAINT)
+          - pattern: kong.unirest.Unirest.delete($TAINT)
+          
+          # ========================================
+          # AsyncHttpClient (Ning/AsyncHttpClient)
+          # ========================================
+          
+          # Request execution - returns CompletableFuture
+          - pattern: (org.asynchttpclient.AsyncHttpClient $CLIENT).executeRequest($TAINT)
+          - pattern: (org.asynchttpclient.AsyncHttpClient $CLIENT).executeRequest($TAINT, ...)
+          
+          # Prepare methods that build requests
+          - pattern: (org.asynchttpclient.AsyncHttpClient $CLIENT).prepareGet($TAINT)
+          - pattern: (org.asynchttpclient.AsyncHttpClient $CLIENT).preparePost($TAINT)
+          - pattern: (org.asynchttpclient.AsyncHttpClient $CLIENT).preparePut($TAINT)
+          - pattern: (org.asynchttpclient.AsyncHttpClient $CLIENT).preparePatch($TAINT)
+          - pattern: (org.asynchttpclient.AsyncHttpClient $CLIENT).prepareDelete($TAINT)
+          - pattern: (org.asynchttpclient.AsyncHttpClient $CLIENT).prepareHead($TAINT)
+          - pattern: (org.asynchttpclient.AsyncHttpClient $CLIENT).prepareOptions($TAINT)
+          
+          # ========================================
+          # Google HTTP Client Library
+          # ========================================
+          
+          # HttpRequest.execute() - executes the request
+          - pattern: (com.google.api.client.http.HttpRequest $REQ).execute()
+          
+          # HttpRequest.executeAsync() - async execution
+          - pattern: (com.google.api.client.http.HttpRequest $REQ).executeAsync()
+          - pattern: (com.google.api.client.http.HttpRequest $REQ).executeAsync(...)
+          
+          # GenericUrl construction
+          - pattern: new com.google.api.client.http.GenericUrl($TAINT)
+          
+          # ========================================
+          # Jsoup - HTML Parser with HTTP Capabilities
+          # ========================================
+          
+          # Jsoup.connect() - creates connection to URL
+          - pattern: org.jsoup.Jsoup.connect($TAINT)
+          
+          # Connection.execute() - executes the request
+          - pattern: (org.jsoup.Connection $CONN).execute()
+          
+          # Connection.get() - executes GET request
+          - pattern: (org.jsoup.Connection $CONN).get()
+          
+          # Connection.post() - executes POST request
+          - pattern: (org.jsoup.Connection $CONN).post()

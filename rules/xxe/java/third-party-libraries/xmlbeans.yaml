@@ -1,0 +1,9 @@
+rules:
+  - id: xxe-sink-xmlbeans-xmlobject-parse
+    pattern: org.apache.xmlbeans.XmlObject.Factory.parse(...)
+    message: "XXE sink: Apache XMLBeans Factory.parse() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

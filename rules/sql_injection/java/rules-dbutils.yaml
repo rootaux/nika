@@ -1,0 +1,226 @@
+rules:
+- id: dbutils-query-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $RUNNER.query($CONN, $SQL + $INPUT, ...)
+    - pattern: $RUNNER.query($CONN, ... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: dbutils-query-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $RUNNER.query($CONN, $SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: dbutils-query-string-format
+  patterns:
+  - pattern: $RUNNER.query($CONN, String.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: dbutils-update-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $RUNNER.update($CONN, $SQL + $INPUT, ...)
+    - pattern: $RUNNER.update($CONN, ... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: dbutils-update-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $RUNNER.update($CONN, $SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: dbutils-update-string-format
+  patterns:
+  - pattern: $RUNNER.update($CONN, String.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: dbutils-execute-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $RUNNER.execute($CONN, $SQL + $INPUT, ...)
+    - pattern: $RUNNER.execute($CONN, ... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: dbutils-execute-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $RUNNER.execute($CONN, $SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: dbutils-execute-string-format
+  patterns:
+  - pattern: $RUNNER.execute($CONN, String.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: dbutils-insert-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $RUNNER.insert($CONN, $SQL + $INPUT, ...)
+    - pattern: $RUNNER.insert($CONN, ... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: dbutils-insert-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $RUNNER.insert($CONN, $SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: dbutils-insert-string-format
+  patterns:
+  - pattern: $RUNNER.insert($CONN, String.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: dbutils-insertBatch-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $RUNNER.insertBatch($CONN, $SQL + $INPUT, ...)
+    - pattern: $RUNNER.insertBatch($CONN, ... + $INPUT + ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: dbutils-insertBatch-variable-concat
+  patterns:
+  - pattern: 'String $SQL = ... + $VAR + ...;
+
+      ...
+
+      $RUNNER.insertBatch($CONN, $SQL, ...);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: dbutils-insertBatch-string-format
+  patterns:
+  - pattern: $RUNNER.insertBatch($CONN, String.format(...), ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH

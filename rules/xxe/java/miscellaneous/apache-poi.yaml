@@ -1,0 +1,16 @@
+rules:
+  - id: xxe-sink-poi-xmlobject-parse
+    pattern-either:
+      - pattern: org.apache.poi.POIXMLDocument.openPackage(...)
+      - patterns:
+          - pattern: $PKG.open(...)
+          - metavariable-type:
+              metavariable: $PKG
+              types:
+                - org.apache.poi.openxml4j.opc.OPCPackage
+    message: "XXE sink: Apache POI XML parsing in Office documents can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

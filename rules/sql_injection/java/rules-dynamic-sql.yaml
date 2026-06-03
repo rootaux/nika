@@ -1,0 +1,127 @@
+rules:
+- id: sql-dynamic-table-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $STMT.executeQuery("SELECT * FROM " + $TABLE)
+    - pattern: $STMT.execute("SELECT * FROM " + $TABLE)
+    - pattern: $STMT.executeUpdate("INSERT INTO " + $TABLE + ...)
+    - pattern: $STMT.executeUpdate("UPDATE " + $TABLE + ...)
+    - pattern: $STMT.executeUpdate("DELETE FROM " + $TABLE)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-dynamic-table-variable-concat
+  patterns:
+  - pattern: 'String $SQL = "SELECT * FROM " + $TABLE + ...;
+
+      ...
+
+      $STMT.executeQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-dynamic-orderby-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $STMT.executeQuery("... ORDER BY " + $COLUMN)
+    - pattern: $HANDLE.createQuery("... ORDER BY " + $COLUMN)
+    - pattern: $TEMPLATE.query("... ORDER BY " + $COLUMN, ...)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-dynamic-orderby-variable-concat
+  patterns:
+  - pattern: 'String $SQL = "... ORDER BY " + $COLUMN + ...;
+
+      ...
+
+      $STMT.executeQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-dynamic-groupby-direct-concat
+  patterns:
+  - pattern-either:
+    - pattern: $STMT.executeQuery("... GROUP BY " + $COLUMN)
+    - pattern: $HANDLE.createQuery("... GROUP BY " + $COLUMN)
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-dynamic-groupby-variable-concat
+  patterns:
+  - pattern: 'String $SQL = "... GROUP BY " + $COLUMN + ...;
+
+      ...
+
+      $STMT.executeQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-where-in-collection-join
+  patterns:
+  - pattern: String $SQL = "... WHERE $COL IN (" + String.join(",", $LIST) + ")";
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-where-in-stream-collect
+  patterns:
+  - pattern: String $SQL = "... WHERE $COL IN (" + $LIST.stream().collect(...) + ")";
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH

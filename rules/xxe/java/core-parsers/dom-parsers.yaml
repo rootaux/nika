@@ -1,0 +1,40 @@
+rules:
+  - id: xxe-sink-documentbuilder-parse
+    patterns:
+      - pattern: $BUILDER.parse(...)
+      - metavariable-type:
+          metavariable: $BUILDER
+          types:
+            - javax.xml.parsers.DocumentBuilder
+    message: "XXE sink: DocumentBuilder.parse() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+      owasp: "A05:2021 - Security Misconfiguration"
+
+  - id: xxe-sink-documentbuilderfactory-newdocumentbuilder
+    pattern-either:
+      - pattern: (javax.xml.parsers.DocumentBuilderFactory $FACTORY).newDocumentBuilder()
+      - pattern: javax.xml.parsers.DocumentBuilderFactory.newInstance(...).newDocumentBuilder()
+    message: "XXE sink: DocumentBuilderFactory creates parsers that may be vulnerable to XXE"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-domparser-parse
+    patterns:
+      - pattern: $PARSER.parse(...)
+      - metavariable-type:
+          metavariable: $PARSER
+          types:
+            - org.apache.xerces.parsers.DOMParser
+    message: "XXE sink: Xerces DOMParser.parse() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

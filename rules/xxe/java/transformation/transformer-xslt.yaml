@@ -1,0 +1,83 @@
+rules:
+  - id: xxe-sink-transformer-transform
+    patterns:
+      - pattern: $TRANSFORMER.transform(...)
+      - metavariable-type:
+          metavariable: $TRANSFORMER
+          types:
+            - javax.xml.transform.Transformer
+      - pattern-not: $TRANSFORMER.transform(new javax.xml.transform.stream.StreamSource(...), ...)
+      - pattern-not: $TRANSFORMER.transform($SRC, new javax.xml.transform.stream.StreamSource(...))
+      - pattern-not: $TRANSFORMER.transform(new javax.xml.transform.sax.SAXSource(...), ...)
+      - pattern-not: $TRANSFORMER.transform($SRC, new javax.xml.transform.sax.SAXSource(...))
+    message: "XXE sink: Transformer.transform() can process external entities from XML source"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-transformerfactory-newtransformer
+    pattern-either:
+      - patterns:
+          - pattern: (javax.xml.transform.TransformerFactory $FACTORY).newTransformer(...)
+          - pattern-not: (javax.xml.transform.TransformerFactory $FACTORY).newTransformer(new javax.xml.transform.stream.StreamSource(...))
+          - pattern-not: (javax.xml.transform.TransformerFactory $FACTORY).newTransformer(new javax.xml.transform.sax.SAXSource(...))
+      - patterns:
+          - pattern: javax.xml.transform.TransformerFactory.newInstance(...).newTransformer(...)
+          - pattern-not: javax.xml.transform.TransformerFactory.newInstance(...).newTransformer(new javax.xml.transform.stream.StreamSource(...))
+          - pattern-not: javax.xml.transform.TransformerFactory.newInstance(...).newTransformer(new javax.xml.transform.sax.SAXSource(...))
+    message: "XXE sink: TransformerFactory creates transformers that may be vulnerable to XXE"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-transformerfactory-newtemplates
+    patterns:
+      - pattern: $FACTORY.newTemplates(...)
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.transform.TransformerFactory
+      - pattern-not: $FACTORY.newTemplates(new javax.xml.transform.stream.StreamSource(...))
+      - pattern-not: $FACTORY.newTemplates(new javax.xml.transform.sax.SAXSource(...))
+    message: "XXE sink: TransformerFactory.newTemplates() processes XSLT and can trigger XXE"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-saxTransformerFactory-newtransformerhandler
+    patterns:
+      - pattern: $FACTORY.newTransformerHandler(...)
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.transform.sax.SAXTransformerFactory
+      - pattern-not: $FACTORY.newTransformerHandler(new javax.xml.transform.stream.StreamSource(...))
+      - pattern-not: $FACTORY.newTransformerHandler(new javax.xml.transform.sax.SAXSource(...))
+    message: "XXE sink: SAXTransformerFactory.newTransformerHandler() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"
+
+  - id: xxe-sink-saxTransformerFactory-newxmlfilter
+    patterns:
+      - pattern: $FACTORY.newXMLFilter(...)
+      - metavariable-type:
+          metavariable: $FACTORY
+          types:
+            - javax.xml.transform.sax.SAXTransformerFactory
+      - pattern-not: $FACTORY.newXMLFilter(new javax.xml.transform.stream.StreamSource(...))
+      - pattern-not: $FACTORY.newXMLFilter(new javax.xml.transform.sax.SAXSource(...))
+    message: "XXE sink: SAXTransformerFactory.newXMLFilter() can process external entities"
+    languages: [java]
+    severity: WARNING
+    metadata:
+      category: security
+      cwe: "CWE-611"

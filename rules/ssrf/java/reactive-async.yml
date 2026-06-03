@@ -1,0 +1,89 @@
+rules:
+  - id: java-ssrf-sinks-reactive-async
+    message: >-
+      Potentially unsafe async/reactive execution pattern detected that could trigger SSRF.
+      Ensure network requests in reactive chains validate input properly.
+    severity: HIGH
+    metadata:
+      category: security
+      cwe: "CWE-918: Server-Side Request Forgery (SSRF)"
+      technology:
+        - java
+      subcategory:
+        - vuln
+      confidence: MEDIUM
+      library_group: "reactive-async"
+      description: "Detects async/reactive patterns that may trigger deferred SSRF execution"
+    languages:
+      - java
+    mode: taint
+    
+    pattern-sources:
+      - pattern: $ANYTHING
+    
+    pattern-sinks:
+      - pattern-either:
+          # ========================================
+          # CompletableFuture Patterns
+          # ========================================
+          
+          # CompletableFuture-based async chains
+          - pattern: (java.util.concurrent.CompletableFuture $FUTURE).thenApply(...).get()
+          - pattern: (java.util.concurrent.CompletableFuture $FUTURE).thenCompose(...).get()
+          - pattern: (java.util.concurrent.CompletableFuture $FUTURE).get()
+          - pattern: (java.util.concurrent.CompletableFuture $FUTURE).join()
+          
+          # ========================================
+          # Project Reactor (Mono/Flux)
+          # ========================================
+          
+          # Project Reactor Mono/Flux subscription (triggers lazy execution)
+          - pattern: (reactor.core.publisher.Mono $MONO).subscribe()
+          - pattern: (reactor.core.publisher.Mono $MONO).subscribe(...)
+          - pattern: (reactor.core.publisher.Mono $MONO).block()
+          - pattern: (reactor.core.publisher.Mono $MONO).block(...)
+          - pattern: (reactor.core.publisher.Mono $MONO).blockOptional()
+          - pattern: (reactor.core.publisher.Mono $MONO).blockOptional(...)
+          
+          - pattern: (reactor.core.publisher.Flux $FLUX).subscribe()
+          - pattern: (reactor.core.publisher.Flux $FLUX).subscribe(...)
+          - pattern: (reactor.core.publisher.Flux $FLUX).blockFirst()
+          - pattern: (reactor.core.publisher.Flux $FLUX).blockFirst(...)
+          - pattern: (reactor.core.publisher.Flux $FLUX).blockLast()
+          - pattern: (reactor.core.publisher.Flux $FLUX).blockLast(...)
+          
+          # ========================================
+          # RxJava 2.x
+          # ========================================
+          
+          # RxJava Observable/Single subscription
+          - pattern: (io.reactivex.Observable $OBS).subscribe()
+          - pattern: (io.reactivex.Observable $OBS).subscribe(...)
+          - pattern: (io.reactivex.Observable $OBS).blockingFirst()
+          - pattern: (io.reactivex.Observable $OBS).blockingFirst(...)
+          - pattern: (io.reactivex.Observable $OBS).blockingLast()
+          - pattern: (io.reactivex.Observable $OBS).blockingSubscribe(...)
+          
+          - pattern: (io.reactivex.Single $SINGLE).subscribe()
+          - pattern: (io.reactivex.Single $SINGLE).subscribe(...)
+          - pattern: (io.reactivex.Single $SINGLE).blockingGet()
+          
+          - pattern: (io.reactivex.Completable $COMP).subscribe()
+          - pattern: (io.reactivex.Completable $COMP).subscribe(...)
+          - pattern: (io.reactivex.Completable $COMP).blockingAwait()
+          
+          # ========================================
+          # RxJava 3.x
+          # ========================================
+          
+          - pattern: (io.reactivex.rxjava3.core.Observable $OBS).subscribe()
+          - pattern: (io.reactivex.rxjava3.core.Observable $OBS).subscribe(...)
+          - pattern: (io.reactivex.rxjava3.core.Observable $OBS).blockingFirst()
+          - pattern: (io.reactivex.rxjava3.core.Observable $OBS).blockingLast()
+          
+          - pattern: (io.reactivex.rxjava3.core.Single $SINGLE).subscribe()
+          - pattern: (io.reactivex.rxjava3.core.Single $SINGLE).subscribe(...)
+          - pattern: (io.reactivex.rxjava3.core.Single $SINGLE).blockingGet()
+          
+          - pattern: (io.reactivex.rxjava3.core.Completable $COMP).subscribe()
+          - pattern: (io.reactivex.rxjava3.core.Completable $COMP).blockingAwait()

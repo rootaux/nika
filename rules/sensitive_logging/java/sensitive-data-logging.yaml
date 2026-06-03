@@ -1,0 +1,18 @@
+rules:
+  - id: java-log-usage
+    message: |
+      Potential sensitive data is being logged. Review the log statement to ensure that it does not contain sensitive information such as personally identifiable information (PII), authentication credentials, or other confidential data. If sensitive data must be logged, ensure that it is properly masked or redacted to prevent unauthorized access.
+    severity: INFO
+    languages:
+      - java
+    patterns:
+      # Match common logging methods
+      - pattern-either:
+          - pattern: $LOG.trace(...)
+          - pattern: $LOG.debug(...)
+          - pattern: $LOG.info(...)
+          - pattern: $LOG.warn(...)
+          - pattern: $LOG.error(...)
+          - pattern: $LOG.fatal(...)
+      # Ignore logs that are purely static literal strings
+      - pattern-not: $LOG.$METHOD("...")

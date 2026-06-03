@@ -1,0 +1,22 @@
+rules:
+  - id: java-velocity-ssti-sink
+    languages: [java]
+    severity: ERROR
+    message: "Potential SSTI: Velocity template evaluated from a non-literal string."
+    metadata:
+      cwe: "CWE-94"
+      technology: [velocity]
+    patterns:
+      - pattern-either:
+          # 1. Look for the static Velocity helper class
+          - pattern: org.apache.velocity.app.Velocity.evaluate($CTX, $OUT, $LOG, $INPUT)
+          - pattern: Velocity.evaluate($CTX, $OUT, $LOG, $INPUT)
+          
+          # 2. Look for the typed VelocityEngine instance
+          - pattern: (VelocityEngine $ENGINE).evaluate($CTX, $OUT, $LOG, $INPUT)
+          - pattern: (org.apache.velocity.app.VelocityEngine $ENGINE).evaluate($CTX, $OUT, $LOG, $INPUT)
+
+      # 3. Filter out safe templates ONLY if the 4th argument (the template itself) is hardcoded
+      - pattern-not: org.apache.velocity.app.Velocity.evaluate($CTX, $OUT, $LOG, "...")
+      - pattern-not: Velocity.evaluate($CTX, $OUT, $LOG, "...")
+      - pattern-not: $ENGINE.evaluate($CTX, $OUT, $LOG, "...")

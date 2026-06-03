@@ -1,0 +1,20 @@
+rules:
+  - id: java-freemarker-ssti-sink
+    languages: [java]
+    severity: ERROR
+    message: "Potential SSTI: FreeMarker template created from dynamic reader/string."
+    metadata:
+      cwe: "CWE-94"
+      technology: [freemarker]
+    patterns:
+      # 1. Target the specific FreeMarker Template class and Java StringReader
+      - pattern-either:
+          - pattern: new freemarker.template.Template(..., new StringReader($INPUT), ...)
+          - pattern: new freemarker.template.Template(..., new java.io.StringReader($INPUT), ...)
+          # Fallback included for partial code snippets where imports might not resolve
+          - pattern: new Template(..., new StringReader($INPUT), ...) 
+          
+      # 2. Filter out safe, hardcoded strings
+      - pattern-not: new freemarker.template.Template(..., new StringReader("..."), ...)
+      - pattern-not: new freemarker.template.Template(..., new java.io.StringReader("..."), ...)
+      - pattern-not: new Template(..., new StringReader("..."), ...)

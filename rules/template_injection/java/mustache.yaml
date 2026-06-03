@@ -1,0 +1,25 @@
+rules:
+  - id: java-mustache-ssti-sink
+    languages: [java]
+    severity: ERROR
+    message: "Potential SSTI: Mustache compiling a template from a dynamic source."
+    metadata:
+      cwe: "CWE-94"
+      technology: [mustache]
+    patterns:
+      # 1. Restrict $FACTORY to only MustacheFactory types
+      - pattern-either:
+          - pattern: (MustacheFactory $FACTORY).compile(...)
+          - pattern: (com.github.mustachejava.MustacheFactory $FACTORY).compile(...)
+          - pattern: (DefaultMustacheFactory $FACTORY).compile(...)
+          - pattern: (com.github.mustachejava.DefaultMustacheFactory $FACTORY).compile(...)
+      
+      # 2. Look for the dangerous dynamic input sinks
+      - pattern-either:
+          - pattern: $FACTORY.compile(new StringReader($INPUT), ...)
+          - pattern: $FACTORY.compile($INPUT)
+          - pattern: $FACTORY.compile($INPUT, ...) # Added to catch compile(String name, String template) overrides
+      
+      # 3. Filter out safe, hardcoded strings
+      - pattern-not: $FACTORY.compile("...", ...)
+      - pattern-not: $FACTORY.compile(new StringReader("..."), ...)

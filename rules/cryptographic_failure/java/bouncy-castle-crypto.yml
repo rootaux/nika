@@ -1,0 +1,49 @@
+rules:
+  # ==================== BOUNCY CASTLE WEAK ENGINES ====================
+
+  - id: java-weak-cipher-bouncy-castle-engine
+    pattern-either:
+      - pattern: new DESEngine()
+      - pattern: new DESedeEngine()
+      - pattern: new RC2Engine()
+      - pattern: new RC4Engine()
+      - pattern: new BlowfishEngine()
+      - pattern: new IDEAEngine()
+      - pattern: new SkipjackEngine()
+      - pattern: new CAST5Engine()
+      - pattern: new GOST28147Engine()
+      - pattern: new NullEngine()
+    languages:
+      - java
+    severity: ERROR
+    message: "Bouncy Castle weak cipher engine detected. Use AESEngine or another strong cipher."
+    metadata:
+      category: security
+      cwe: "CWE-327"
+
+  - id: java-weak-digest-bouncy-castle
+    pattern-either:
+      - pattern: new MD5Digest()
+      - pattern: new MD4Digest()
+      - pattern: new MD2Digest()
+      - pattern: new SHA1Digest()
+      - pattern: new RIPEMD128Digest()
+      - pattern: new TigerDigest()
+    languages:
+      - java
+    severity: WARNING
+    message: "Bouncy Castle weak digest detected. Use SHA256Digest or stronger."
+    metadata:
+      category: security
+      cwe: "CWE-328"
+
+  - id: java-bouncy-castle-ecb-mode
+    pattern-either:
+      - pattern: new ECBBlockCipher(...)
+    languages:
+      - java
+    severity: ERROR
+    message: "Bouncy Castle ECB mode cipher detected. ECB mode is insecure. Use CBCBlockCipher or GCMBlockCipher with proper IV."
+    metadata:
+      category: security
+      cwe: "CWE-327"

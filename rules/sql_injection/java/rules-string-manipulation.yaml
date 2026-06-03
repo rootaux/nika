@@ -1,0 +1,63 @@
+rules:
+- id: jdbc-messageformat-injection
+  patterns:
+  - pattern-either:
+    - pattern: $STMT.executeQuery(MessageFormat.format(...))
+    - pattern: $STMT.execute(MessageFormat.format(...))
+    - pattern: $STMT.executeUpdate(MessageFormat.format(...))
+    - pattern: $CONN.prepareStatement(MessageFormat.format(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: jdbc-messageformat-variable
+  patterns:
+  - pattern: 'String $SQL = MessageFormat.format(...);
+
+      ...
+
+      $STMT.executeQuery($SQL);'
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
+- id: sql-string-replace-injection
+  patterns:
+  - pattern-either:
+    - pattern: $STMT.executeQuery($SQL.replace(...))
+    - pattern: $STMT.execute($SQL.replaceAll(...))
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: WARNING
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: MEDIUM
+- id: sql-jsonnode-injection
+  patterns:
+  - pattern: String $SQL = ... + $NODE.get(...).asText() + ...;
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages:
+  - java
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: HIGH
