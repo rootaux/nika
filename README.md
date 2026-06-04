@@ -1,25 +1,26 @@
 # Nika
 
-Nika is an open-source source code review and static analysis tool for security engineers who need to identify realistic exploit paths in Java applications. It performs cross-file taint analysis to trace attacker-controlled input across application layers and determine whether that input reaches a security-sensitive sink.
+![Nika](assets/nika.png)
+
+Nika is an open-source source code review and static analysis tool for security engineers who need to identify exploit paths in Java microservices. It performs cross-file taint analysis to trace attacker-controlled input across application layers and determine whether that input reaches a security-sensitive sink.
 
 ## Why Nika
 
 Many exploitable issues are not visible inside a single file. Request data may enter through a controller, pass through DTOs and service layers, and only become dangerous when it reaches a sink such as a database query, file operation, template engine, reflection API, or outbound network call.
 
-Nika is built for that review problem. Instead of stopping at isolated risky APIs, it follows the flow across files and functions so security engineers can evaluate whether a path is actually reachable.
+Nika is built for that review problem. Instead of just identifying dangerous sinks, it traces data flow across files and functions so security engineers can determine whether a path is actually reachable.
 
 ## What Nika Helps Security Engineers Do
 
 - Trace attacker-controlled input across controllers, services, helpers, and utility layers.
-- Validate source-to-sink reachability instead of reviewing disconnected sink matches.
-- Focus on code under review with branch-aware scanning.
-- Recover harder-to-resolve flows with aggressive reachability mode.
-- Generate HTML reports that are easier to review and share.
+- Validate source-to-sink reachability.
+- Support secure code review with branch-aware scanning.
+- Generate HTML reports.
 - Extend coverage with custom sources, OpenGrep sinks, and vulnerability plugins.
 
 ## Detection Coverage
 
-Nika currently documents support for the following vulnerability categories in Java codebases:
+Nika currently supports the following vulnerability categories:
 
 - SQL injection
 - SSRF
@@ -37,6 +38,8 @@ Nika currently documents support for the following vulnerability categories in J
 
 At a high level, Nika follows this analysis flow:
 
+![Nika architecture](assets/nika-arch.jpeg)
+
 1. Process the target repository into an analysis representation that captures code structure, control flow, and data flow.
 2. Identify configured sources where attacker-controlled input enters the application.
 3. Identify sinks that represent security-sensitive operations.
@@ -46,20 +49,17 @@ At a high level, Nika follows this analysis flow:
 
 ## Quick Start
 
-### Native Scan
+### Run via Docker
 
-Use this when you want a local Python environment and faster local execution.
+You can use pre-built docker images.
 
 ```bash
-git clone https://github.com/PhonePe/nika.git
-cd nika
-./native-build.sh
-./native-run.sh --path /absolute/path/to/code --output ./report.html
+docker pull ghcr.io/phonepe/nika:latest
+export NIKA_IMAGE=ghcr.io/phonepe/nika
+./run.sh --path /absolute/path/to/code --config /absolute/path/to/crtConfig.yml --output ./report.html
 ```
 
-### Container Scan
-
-Use this when you want an isolated runtime packaged into a Docker image.
+or build a docker image yourself.
 
 ```bash
 git clone https://github.com/PhonePe/nika.git
@@ -68,23 +68,14 @@ cd nika
 ./run.sh --path /absolute/path/to/code --config /absolute/path/to/crtConfig.yml --output ./report.html
 ```
 
-Or you can use a pre-built image
+### Run locally
 
 ```bash
-docker pull ghcr.io/phonepe/nika:latest
-export NIKA_IMAGE=ghcr.io/phonepe/nika
-./run.sh --path /absolute/path/to/code --config /absolute/path/to/crtConfig.yml --output ./report.html
+git clone https://github.com/PhonePe/nika.git
+cd nika
+./native-build.sh
+./native-run.sh --path /absolute/path/to/code --output ./report.html
 ```
-
-## When To Use Each Mode
-
-### Native Scan
-
-Choose native execution when you want the quickest local setup for repeated analysis on a workstation or CI runner that already meets the tool requirements.
-
-### Container Scan
-
-Choose container execution when you want a more isolated runtime and a packaged scan environment with fewer local tool dependencies.
 
 ### Branch-Aware Scan
 
@@ -98,8 +89,7 @@ python3 main.py --path "/absolute/path/to/git/repo" --lang java --source_branch 
 
 ### Aggressive Scan
 
-Enable `aggressiveScan` when the default reachability pass is too shallow for the target codebase, especially in applications with layered interfaces, framework callbacks, or complex virtual dispatch. `aggressiveScan` switches to method-level reachability checks so it can recover flows the normal pass may miss.
-
+Use `aggressiveScan` when the codebase is harder to follow because data flows through many layers, interfaces, virtual method calls, callbacks, or map-based dispatch.
 
 ## Language Support
 
