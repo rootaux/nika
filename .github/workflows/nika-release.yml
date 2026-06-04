@@ -152,6 +152,8 @@ jobs:
           context: .
           platforms: ${{ matrix.platform }}
           push: true
+          provenance: false
+          sbom: false
           build-args: |
             OPENGREP_URL=${{ matrix.opengrep_url }}
           tags: |
