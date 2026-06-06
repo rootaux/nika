@@ -26,6 +26,7 @@ vulnerabilityConfig:
    - xxe
    - ldap_injection
    - xpath_injection
+   - nosql_injection
 
 sources:
   annotations:
