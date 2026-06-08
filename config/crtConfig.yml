@@ -15,15 +15,18 @@ vulnerabilityConfig:
    - command_injection
    - code_injection
    - order_scan
-   - command_injection
    - sqli
    - path_traversal
    - ssrf
+   - open_redirect
    - template_injection
    - deserialization
    - cryptographic_failure
    - unsafe_reflection
    - xxe
+   - ldap_injection
+   - xpath_injection
+   - nosql_injection
 
 sources:
   annotations:
