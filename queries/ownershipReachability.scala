@@ -158,18 +158,24 @@ def findOwnershipReachable(
       val resOpt = if (parts.length >= 3 && parts(2).nonEmpty) Some(parts(2)) else None
       (name, repoOpt, resOpt)
     }
-  val explicitNames = explicitSpecs.map(_._1).toSet
   def fileMatchesRepo(filename: String, repo: String): Boolean =
     filename != null && filename.toLowerCase.contains(repo)
+
+  // A configured name matches a method by simple name or by FQN.
+  def methodMatchesName(m: Method, name: String): Boolean =
+    if (name.contains(".")) {
+      val qualified = m.fullName.split(":").head
+      qualified == name || qualified.endsWith("." + name) || m.fullName == name
+    } else m.name == name
 
   // For each matching explicit method: the resources it guards, and whether it is generic.
   val explicitAllIds = mutable.Set[Long]()
   val explicitGenericIds = mutable.Set[Long]()
   val explicitResourceById = mutable.Map[Long, mutable.Set[String]]()
   if (explicitSpecs.nonEmpty) {
-    cpg.method.filter(m => explicitNames.contains(m.name)).foreach { m =>
+    cpg.method.filter(m => explicitSpecs.exists { case (fn, _, _) => methodMatchesName(m, fn) }).foreach { m =>
       val matching = explicitSpecs.filter {
-        case (fn, repoOpt, _) => fn == m.name && repoOpt.forall(r => fileMatchesRepo(m.filename, r))
+        case (fn, repoOpt, _) => methodMatchesName(m, fn) && repoOpt.forall(r => fileMatchesRepo(m.filename, r))
       }
       if (matching.nonEmpty) {
         explicitAllIds += m.id
