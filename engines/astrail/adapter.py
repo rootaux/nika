@@ -76,5 +76,59 @@ class AstrailEngine:
 
         return translate_batch_reachability(batch_result)
 
+    def find_ownership_protected(
+        self,
+        endpoint_symbols,
+        principal_markers,
+        principal_types,
+        principal_annotations,
+        identifier_names,
+        explicit_functions,
+        require_identifier_param: bool = True,
+        require_comparison: bool = True,
+        match_generic_id: bool = True,
+        endpoint_identifiers: dict | None = None,
+        ownership_annotations=None,
+    ):
+        raw = self._get_query_runner().run_ownership_reachability(
+            endpoint_symbols,
+            principal_markers,
+            principal_types,
+            principal_annotations,
+            identifier_names,
+            explicit_functions,
+            require_identifier_param=require_identifier_param,
+            require_comparison=require_comparison,
+            match_generic_id=match_generic_id,
+            endpoint_identifiers=endpoint_identifiers,
+            ownership_annotations=ownership_annotations,
+        )
+        protected = {}
+        for entry in raw or []:
+            endpoint = entry.get("endpoint")
+            if endpoint:
+                protected[endpoint] = entry
+        return protected
+
+    def find_request_body_identifiers(
+        self,
+        endpoint_symbols,
+        identifier_names,
+        body_annotations,
+        match_generic_id: bool = True,
+    ):
+        raw = self._get_query_runner().run_request_body_identifiers(
+            endpoint_symbols,
+            identifier_names,
+            body_annotations,
+            match_generic_id=match_generic_id,
+        )
+        results = {}
+        for entry in raw or []:
+            endpoint = entry.get("endpoint")
+            if endpoint:
+                results[endpoint] = entry
+        return results
+
     def get_method_and_file_name(self, code: str, filename: str):
         return self._get_query_runner().get_method_and_file_name(code, filename)

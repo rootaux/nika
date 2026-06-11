@@ -50,6 +50,16 @@ Examples:
         help="Path to the YAML config file (default: config/crtConfig.yml)",
     )
 
+    parser.add_argument(
+        "--inference-jar-paths",
+        nargs="+",
+        default=None,
+        metavar="PATH",
+        help=(
+            "Directories of (or individual) dependency jars used for type resolution"
+        ),
+    )
+
     return parser.parse_args()
 
 

@@ -2,6 +2,50 @@ import os
 from tree_sitter import Language, Parser
 import tree_sitter_java as tsjava
 
+def find_method_signature_line(
+    file_path: str,
+    method_name: str,
+    append_path: str = None,
+) -> int | None:
+    """Return the 1-based line of a method's declaration."""
+    try:
+        if not os.path.exists(file_path):
+            file_path = os.path.join(append_path or "", file_path)
+        if not os.path.exists(file_path):
+            return None
+
+        if append_path:
+            resolved = os.path.realpath(file_path)
+            project_root = os.path.realpath(append_path)
+            if not resolved.startswith(project_root + os.sep) and resolved != project_root:
+                return None
+
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            source_code = f.read()
+
+        JAVA_LANGUAGE = Language(tsjava.language())
+        parser = Parser(JAVA_LANGUAGE)
+        root_node = parser.parse(bytes(source_code, "utf8")).root_node
+
+        def find_name_line(node):
+            if node.type == "method_declaration":
+                for child in node.children:
+                    if (
+                        child.type == "identifier"
+                        and source_code[child.start_byte:child.end_byte] == method_name
+                    ):
+                        return child.start_point[0] + 1
+            for child in node.children:
+                result = find_name_line(child)
+                if result:
+                    return result
+            return None
+
+        return find_name_line(root_node)
+    except Exception:
+        return None
+
+
 def extract_method_from_file(
     file_path: str,
     method_name: str,

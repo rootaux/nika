@@ -5,6 +5,7 @@ from languages.java.pack import JavaLanguagePack
 from vulnerabilities.code_injection import CodeInjectionVulnerability
 from vulnerabilities.command_injection import CommandInjectionVulnerability
 from vulnerabilities.deserialization import DeserializationVulnerability
+from vulnerabilities.idor.vulnerability import IdorVulnerability
 from vulnerabilities.insecure_crypto import InsecureCryptoVulnerability
 from vulnerabilities.open_redirect import OpenRedirectVulnerability
 from vulnerabilities.order_scan import OrderScanVulnerability
@@ -80,4 +81,5 @@ def build_default_registry():
     registry.register_vulnerability("unsafe_reflection", UnsafeReflectionVulnerability)
     registry.register_vulnerability("cryptographic_failure", InsecureCryptoVulnerability)
     registry.register_vulnerability("order_scan", OrderScanVulnerability)
+    registry.register_vulnerability("idor", IdorVulnerability)
     return registry

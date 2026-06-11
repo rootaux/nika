@@ -69,12 +69,21 @@ def build_request(args):
     return build_scan_context(args, [], {}, False)
 
 
+def _apply_cli_overrides(args):
+    inference_jar_paths = getattr(args, "inference_jar_paths", None)
+    if inference_jar_paths:
+        config = ConfigProvider.get_config()
+        astrail_config = config.tools.setdefault("astrail", {})
+        astrail_config["inference_jar_paths"] = list(inference_jar_paths)
+
+
 def run_cli():
     setup_logging()
     try:
         args = parse_and_validate_arguments()
         if getattr(args, "config", None):
             ConfigProvider.configure(args.config)
+        _apply_cli_overrides(args)
         request = build_request(args)
         NikaApplicationRuntime().run(request)
     except KeyboardInterrupt:

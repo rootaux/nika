@@ -31,6 +31,29 @@ class AstrailQueryRunner:
     def _query_file_path(self, name: str) -> str:
         return os.path.join(self._project_root, "queries", name)
 
+    @staticmethod
+    def _write_params_file(params: dict) -> str:
+        import base64
+
+        lines: list[str] = []
+        for key, value in params.items():
+            if isinstance(value, bool):
+                values = ["true" if value else "false"]
+            elif isinstance(value, (list, tuple, set)):
+                values = list(value)
+            else:
+                values = [value]
+            for item in values:
+                if item is None:
+                    continue
+                encoded = base64.b64encode(str(item).encode("utf-8")).decode("ascii")
+                lines.append(f"{key}\t{encoded}")
+
+        fd, path = tempfile.mkstemp(suffix=".params")
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write("\n".join(lines))
+        return path
+
     def _execute_query_sync(self, query: str, timeout: int = 300):
         retry_strategy = Retry(
             total=3,
@@ -151,12 +174,19 @@ def execute_once = {{
         return self._execute_query_to_json(wrapped_query)
 
     def get_method_and_file_name(self, code: str, filename: str):
-        escaped_code = code.replace("\\", "\\\\").replace('"', '\\"')
-        escaped_filename = filename.replace("\\", "\\\\").replace('"', '\\"')
-        result = self._execute_scala_query(
-            self._query_file_path("getFilenameFromMethodCode.scala"),
-            f'getMethodandFileName("{escaped_code}", "{escaped_filename}")',
-        )
+        params_tmp = self._write_params_file({"code": code, "filename": filename})
+        try:
+            params_escaped = params_tmp.replace("\\", "\\\\")
+            result = self._execute_scala_query(
+                self._query_file_path("getFilenameFromMethodCode.scala"),
+                f'getMethodandFileName("{params_escaped}")',
+            )
+        finally:
+            if os.path.exists(params_tmp):
+                try:
+                    os.remove(params_tmp)
+                except OSError:
+                    pass
         if result is None:
             return '{"fileName": "", "methodName": ""}'
         if isinstance(result, str):
@@ -180,7 +210,8 @@ def execute_once = {{
             output_dir, f"{os.path.splitext(os.path.basename(self.repo_path))[0]}.cpg"
         )
 
-        tool_name = self._get_astrail_config().get("javasrc2cpg")
+        astrail_config = self._get_astrail_config()
+        tool_name = astrail_config.get("javasrc2cpg")
         if not tool_name:
             raise RuntimeError("config.tools.astrail.javasrc2cpg is not set")
         cmd = [
@@ -191,8 +222,13 @@ def execute_once = {{
             "--delombok-mode",
             "no-delombok",
             "--exclude",
-            "lib/**"
+            "lib/**",
         ]
+
+        for jar_path in astrail_config.get("inference_jar_paths", []) or []:
+            if jar_path:
+                cmd.extend(["--inference-jar-paths", str(jar_path)])
+
         command_result = execute_command(cmd)
         logging.info("CPG generation duration: %s seconds", command_result.duration_sec)
         if not command_result.ok or not os.path.exists(output_cpg_path):
@@ -344,6 +380,162 @@ def execute_once = {{
             raise AstrailEngineError(f"Error in aggressive reachability: {exc}") from exc
         finally:
             for tmp in [input_tmp, output_tmp]:
+                if tmp and os.path.exists(tmp):
+                    try:
+                        os.remove(tmp)
+                    except OSError:
+                        pass
+
+    def run_ownership_reachability(
+        self,
+        endpoint_symbols,
+        principal_markers,
+        principal_types,
+        principal_annotations,
+        identifier_names,
+        explicit_functions,
+        require_identifier_param: bool = True,
+        require_comparison: bool = True,
+        match_generic_id: bool = True,
+        endpoint_identifiers: dict | None = None,
+        ownership_annotations=None,
+    ):
+        if not endpoint_symbols:
+            return []
+
+        endpoint_identifiers = endpoint_identifiers or {}
+
+        ping_result = self._execute_query_sync("1")
+        if ping_result.get("success") is False:
+            raise AstrailEngineError(
+                "Astrail server is not reachable for ownership reachability."
+            )
+
+        query_file = self._query_file_path("ownershipReachability.scala")
+        if not os.path.exists(query_file):
+            raise AstrailEngineError(f"Ownership query file not found: {query_file}")
+
+        endpoint_lines = [
+            f"{symbol}\t{','.join(endpoint_identifiers.get(symbol, []) or [])}"
+            for symbol in endpoint_symbols
+            if symbol
+        ]
+        params_tmp = self._write_params_file(
+            {
+                "principalMarker": principal_markers,
+                "principalType": principal_types,
+                "principalAnnotation": principal_annotations,
+                "identifier": identifier_names,
+                "explicitFunction": explicit_functions,
+                "requireIdentifierParam": require_identifier_param,
+                "requireComparison": require_comparison,
+                "matchGenericId": match_generic_id,
+                "ownershipAnnotation": ownership_annotations or [],
+                "endpoint": endpoint_lines,
+            }
+        )
+
+        output_tmp = None
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as handle:
+                output_tmp = handle.name
+
+            with open(query_file, "r", encoding="utf-8") as handle:
+                query_content = handle.read()
+
+            params_escaped = params_tmp.replace("\\", "\\\\")
+            output_escaped = output_tmp.replace("\\", "\\\\")
+            script = query_content + (
+                f'\nfindOwnershipReachable("{params_escaped}", "{output_escaped}")'
+            )
+            result = self._execute_query_sync(script, timeout=1800)
+
+            if result.get("success") is False:
+                raise AstrailEngineError(
+                    f"Ownership reachability query failed: {result.get('error', 'unknown')}"
+                )
+
+            if output_tmp and os.path.exists(output_tmp):
+                with open(output_tmp, "r", encoding="utf-8") as handle:
+                    data = handle.read()
+                if data:
+                    return json.loads(data)
+            return []
+        except AstrailEngineError:
+            raise
+        except Exception as exc:
+            raise AstrailEngineError(f"Error in ownership reachability: {exc}") from exc
+        finally:
+            for tmp in [params_tmp, output_tmp]:
+                if tmp and os.path.exists(tmp):
+                    try:
+                        os.remove(tmp)
+                    except OSError:
+                        pass
+
+    def run_request_body_identifiers(
+        self,
+        endpoint_symbols,
+        identifier_names,
+        body_annotations,
+        match_generic_id: bool = True,
+    ):
+        if not endpoint_symbols:
+            return []
+
+        ping_result = self._execute_query_sync("1")
+        if ping_result.get("success") is False:
+            raise AstrailEngineError(
+                "Astrail server is not reachable for request-body identifier analysis."
+            )
+
+        query_file = self._query_file_path("requestBodyIdentifiers.scala")
+        if not os.path.exists(query_file):
+            raise AstrailEngineError(f"Request-body query file not found: {query_file}")
+
+        params_tmp = self._write_params_file(
+            {
+                "identifier": identifier_names,
+                "bodyAnnotation": body_annotations,
+                "matchGenericId": match_generic_id,
+                "endpoint": [symbol for symbol in endpoint_symbols if symbol],
+            }
+        )
+
+        output_tmp = None
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as handle:
+                output_tmp = handle.name
+
+            with open(query_file, "r", encoding="utf-8") as handle:
+                query_content = handle.read()
+
+            params_escaped = params_tmp.replace("\\", "\\\\")
+            output_escaped = output_tmp.replace("\\", "\\\\")
+            script = query_content + (
+                f'\nfindRequestBodyIdentifiers("{params_escaped}", "{output_escaped}")'
+            )
+            result = self._execute_query_sync(script, timeout=1800)
+
+            if result.get("success") is False:
+                raise AstrailEngineError(
+                    f"Request-body identifier query failed: {result.get('error', 'unknown')}"
+                )
+
+            if output_tmp and os.path.exists(output_tmp):
+                with open(output_tmp, "r", encoding="utf-8") as handle:
+                    data = handle.read()
+                if data:
+                    return json.loads(data)
+            return []
+        except AstrailEngineError:
+            raise
+        except Exception as exc:
+            raise AstrailEngineError(
+                f"Error in request-body identifier analysis: {exc}"
+            ) from exc
+        finally:
+            for tmp in [params_tmp, output_tmp]:
                 if tmp and os.path.exists(tmp):
                     try:
                         os.remove(tmp)
