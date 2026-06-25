@@ -155,9 +155,13 @@ def getMethodDefinition(m: Method): String = {
     }
 }
 
-def findPathsBatch(paramsPath: String, outputPath: String): Unit = {
+def findPathsBatch(paramsPath: String, outputPath: String, sanitizers: Seq[String] = Seq.empty): Unit = {
     val lines = loadParams(paramsPath).getOrElse("pair", Seq.empty).toArray
-    println(s"[batch] Processing ${lines.length} pairs")
+    println(s"[batch] Processing ${lines.length} pairs" + (if (sanitizers.nonEmpty) s" (sanitizers: ${sanitizers.mkString(",")})" else ""))
+
+    val sanitizerSet = sanitizers.toSet
+    def isSanitizerCall(c: Call): Boolean =
+        sanitizerSet.contains(c.name) || sanitizers.exists(s => c.methodFullName.contains(s))
 
     // ── Caches ──
     // source fullName → Method
@@ -243,7 +247,15 @@ def findPathsBatch(paramsPath: String, outputPath: String): Unit = {
                             for (cand <- reachableCandidates if sinkFullName.isEmpty) {
                                 try {
                                     val sinkArgCand = cand.argument
-                                    val reachable = sinkArgCand.reachableByFlows(source.parameter).nonEmpty
+                                    val flows = sinkArgCand.reachableByFlows(source.parameter)
+                                    // Sanitized when every flow passes a sanitizer; report only
+                                    // if at least one clean (unsanitized) path reaches the sink.
+                                    val reachable =
+                                        if (sanitizers.isEmpty) flows.nonEmpty
+                                        else flows.exists(p => !p.elements.exists {
+                                            case c: Call => isSanitizerCall(c)
+                                            case _ => false
+                                        })
                                     if (reachable) {
                                         sinkFullName = Some(cand.method.fullName)
                                         callNode = Some(cand)

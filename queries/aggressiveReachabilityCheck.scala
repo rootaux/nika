@@ -157,9 +157,14 @@ def getMethodDefinition(m: Method): String = {
 
 // Aggressive reachability: call-graph-only (no taint tracking)
 
-def findAggressivePathsBatch(paramsPath: String, outputPath: String): Unit = {
+def findAggressivePathsBatch(paramsPath: String, outputPath: String, sanitizers: Seq[String] = Seq.empty): Unit = {
     val lines = loadParams(paramsPath).getOrElse("pair", Seq.empty).toArray
     println(s"[aggressive-batch] Processing ${lines.length} pairs")
+
+    val sanitizerSet = sanitizers.toSet
+    def chainSanitized(chain: Seq[Method]): Boolean =
+        sanitizers.nonEmpty && chain.exists(m =>
+            sanitizerSet.contains(m.name) || sanitizers.exists(s => m.fullName.contains(s)))
 
     val sourceCache = mutable.Map[String, Option[Method]]()
     val allResults = mutable.ArrayBuffer[String]()
@@ -198,7 +203,7 @@ def findAggressivePathsBatch(paramsPath: String, outputPath: String): Unit = {
 
                         val chains = sinkTrav.reachableByCallGraphWithChain(sourceTrav)
 
-                        for (chain <- chains if chain.nonEmpty) {
+                        for (chain <- chains if chain.nonEmpty && !chainSanitized(chain)) {
                             val pathEntries = mutable.ArrayBuffer[String]()
 
                             chain.zipWithIndex.foreach { case (m, idx) =>

@@ -4,6 +4,7 @@ from types import SimpleNamespace
 
 from config_provider import ConfigProvider
 from engines.astrail.query_runner import AstrailQueryRunner, _scala_literal
+from engines.astrail.server import get_astrail_server
 from engines.astrail.translators import (
     translate_batch_reachability,
     translate_sources,
@@ -27,9 +28,6 @@ class AstrailEngine:
         if query_runner.generate_cpg() != "ok":
             raise RuntimeError("Astrail CPG generation failed")
 
-        from config_provider import ConfigProvider
-        from engines.astrail.server import get_astrail_server
-
         astrail_server = get_astrail_server()
         astrail_server.set_cpg_path(query_runner.cpg_file_path)
         port = ConfigProvider.get_config().tools.get("astrail", {}).get("port", 9001)
@@ -49,8 +47,6 @@ class AstrailEngine:
         logging.info("Astrail CPG import successful")
 
     def cleanup(self):
-        from engines.astrail.server import get_astrail_server
-
         logging.info("Stopping Astrail server")
         get_astrail_server().stop()
 
@@ -70,9 +66,13 @@ class AstrailEngine:
 
         config = ConfigProvider.get_config()
         if getattr(config, "aggressive_scan", False):
-            batch_result = self._get_query_runner().run_aggressive_reachability(pairs)
+            batch_result = self._get_query_runner().run_aggressive_reachability(
+                pairs, sanitizers=sanitizers
+            )
         else:
-            batch_result = self._get_query_runner().run_batch_reachability(pairs)
+            batch_result = self._get_query_runner().run_batch_reachability(
+                pairs, sanitizers=sanitizers
+            )
 
         return translate_batch_reachability(batch_result)
 

@@ -304,8 +304,7 @@ def execute_once = {{
             for source, sink in pairs
         ]
 
-    def run_batch_reachability(self, pairs):
-        if not pairs:
+    def run_batch_reachability(self, pairs, sanitizers=None):
             return []
 
         ping_result = self._execute_query_sync("1")
@@ -329,8 +328,9 @@ def execute_once = {{
 
             params_escaped = params_tmp.replace("\\", "\\\\")
             output_escaped = output_tmp.replace("\\", "\\\\")
+            sanitizer_seq = self._sanitizer_seq_literal(sanitizers)
             script = query_content + (
-                f'\nfindPathsBatch("{params_escaped}", "{output_escaped}")'
+                f'\nfindPathsBatch("{params_escaped}", "{output_escaped}", {sanitizer_seq})'
             )
             result = self._execute_query_sync(script, timeout=3600)
 
@@ -357,8 +357,7 @@ def execute_once = {{
                     except OSError:
                         pass
 
-    def run_aggressive_reachability(self, pairs):
-        if not pairs:
+    def run_aggressive_reachability(self, pairs, sanitizers=None):
             return []
 
         ping_result = self._execute_query_sync("1")
@@ -382,8 +381,9 @@ def execute_once = {{
 
             params_escaped = params_tmp.replace("\\", "\\\\")
             output_escaped = output_tmp.replace("\\", "\\\\")
+            sanitizer_seq = self._sanitizer_seq_literal(sanitizers)
             script = query_content + (
-                f'\nfindAggressivePathsBatch("{params_escaped}", "{output_escaped}")'
+                f'\nfindAggressivePathsBatch("{params_escaped}", "{output_escaped}", {sanitizer_seq})'
             )
             result = self._execute_query_sync(script, timeout=3600)
 

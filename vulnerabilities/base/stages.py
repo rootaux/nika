@@ -55,8 +55,9 @@ def discover_sources(vulnerability, context, state):
 
 def run_dataflow(vulnerability, context, state):
     logging.info("Running taint analysis for %s", vulnerability.vulnerability_id)
+    sanitizers = getattr(vulnerability, "sanitizers", None) or []
     state.traces = context.engines["dataflow_analyzer"].find_traces(
-        context, state.sources, state.sinks
+        context, state.sources, state.sinks, sanitizers=sanitizers
     )
     logging.info("Found %d vulnerabilities for %s", len(state.traces), vulnerability.vulnerability_id)
     return state
