@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import tempfile
-
+import itertools
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -307,6 +307,25 @@ def execute_once = {{
         return "Seq(" + ", ".join(_scala_literal(s) for s in (sanitizers or []) if s) + ")"
 
     def run_batch_reachability(self, pairs, sanitizers=None):
+        CHUNK_SIZE = self._get_astrail_config().get("chunk_size", 100_000)
+        iterator_pairs = iter(pairs)
+        chunks = list(itertools.islice(iterator_pairs, CHUNK_SIZE))
+        if not chunks:
+            return []
+        results = []
+        processed_pairs = 0
+        try:
+            while chunks:
+                processed_pairs += len(chunks)
+                logging.info("Processing batch reachability chunk with %d pairs processed so far", processed_pairs)
+                chunk_results = self.run_batch_reachability_chunk(chunks, sanitizers)
+                results.extend(chunk_results)
+                chunks = list(itertools.islice(iterator_pairs, CHUNK_SIZE))
+        except Exception as exc:
+            raise AstrailEngineError(f"Error in batch reachability: {exc}") from exc
+        return results 
+
+    def run_batch_reachability_chunk(self, pairs, sanitizers=None):
         params_tmp = self._write_params_file({"pair": self._encode_pairs(pairs)})
         if os.path.getsize(params_tmp) == 0:
             os.remove(params_tmp)
