@@ -1,6 +1,39 @@
-# Nika
+
 
 ![Nika](assets/nika.png)
+
+<div align="center">
+
+# Nika
+
+### Open-Source Static Application Security Testing (SAST) tool with cross-file taint analysis
+
+<em>Trace attacker-controlled input from source to sink across your Java microservices.</em>
+
+<br/>
+
+[![Join our Discord](https://img.shields.io/badge/Join_Discord-E8541E?style=for-the-badge&logo=discord&logoColor=FFFFFF&labelColor=0D0D0D)](https://discord.com/invite/PrTJ5Hubfm)
+&nbsp;
+[![Documentation](https://img.shields.io/badge/Read_The_Docs-E8541E?style=for-the-badge&logo=readthedocs&logoColor=FFFFFF&labelColor=0D0D0D)](https://phonepe.github.io/nika/)
+
+<br/>
+
+![License](https://img.shields.io/github/license/PhonePe/nika?style=for-the-badge&color=E8541E&labelColor=0D0D0D&logoColor=FFFFFF)
+&nbsp;
+![Stars](https://img.shields.io/github/stars/PhonePe/nika?style=for-the-badge&logo=github&logoColor=FFFFFF&color=E8541E&labelColor=0D0D0D)
+&nbsp;
+![Open issues](https://img.shields.io/github/issues/PhonePe/nika?style=for-the-badge&color=E8541E&labelColor=0D0D0D)
+&nbsp;
+![PRs welcome](https://img.shields.io/badge/PRs-welcome-E8541E?style=for-the-badge&labelColor=0D0D0D)
+
+<br/>
+
+**[Quick Start](#quick-start)** · **[Why Nika](#why-nika)** · **[Detection Coverage](#detection-coverage)** · **[How It Works](#how-nika-works)** · **[Docs](https://phonepe.github.io/nika/)**
+
+<br/>
+
+</div>
+
 
 Nika is an open-source source code review and static analysis tool for security engineers who need to identify exploit paths in Java microservices. It performs cross-file taint analysis to trace attacker-controlled input across application layers and determine whether that input reaches a security-sensitive sink.
 
