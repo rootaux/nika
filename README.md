@@ -29,8 +29,8 @@
 
 </div>
 
-> [!Fun Fact]
-> The name Nika actually comes from the anime One Piece.
+> [!TIP]
+> **Fun fact:** The name Nika actually comes from the anime One Piece.
 
 
 
