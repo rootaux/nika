@@ -15,28 +15,47 @@ def loadParams(path: String): Map[String, Seq[String]] = {
 }
 
 def getMethodandFileName(paramsPath: String): String = {
-    val params = loadParams(paramsPath)
-    val methodCode = params.getOrElse("code", Nil).headOption.getOrElse("")
-    val filename = params.getOrElse("filename", Nil).headOption.getOrElse("")
-    val regexFileName = s".*$filename"
-    var callNode: Option[Call] = None
-    cpg.file.name(regexFileName).method.call.foreach(x => {
-        if(x.code.contains(methodCode) || methodCode.contains(x.code)){
-            callNode = Some(x)
-        }
-    })
-    
-    if(callNode.isDefined){
-        val methodName = callNode.callee.headOption.get.name
-        val fileName = callNode.callee.headOption.get.filename
-        return s"""{"fileName": "${fileName}", "methodName": "${methodName}"}"""
+    def jsonEscape(value: String): String = {
+        value
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
     }
 
-    //if it is not a method, it probably might be a variable
-    cpg.file.name(regexFileName).typeDecl.member.foreach(x => {
-        if(x.code.contains(methodCode) || methodCode.contains(x.code)){
-            return s"""{"isVariable": true}"""
+    try {
+        val params = loadParams(paramsPath)
+        val methodCode = params.getOrElse("code", Nil).headOption.getOrElse("")
+        val filename = params.getOrElse("filename", Nil).headOption.getOrElse("")
+        val regexFileName = s".*${java.util.regex.Pattern.quote(filename)}"
+        var callNode: Option[Call] = None
+        cpg.file.name(regexFileName).method.call.foreach(x => {
+            if(x.code.contains(methodCode) || methodCode.contains(x.code)){
+                callNode = Some(x)
+            }
+        })
+
+        if(callNode.isDefined){
+            val maybeCallee = callNode.get.callee.headOption
+            if(maybeCallee.isDefined) {
+                val methodName = jsonEscape(maybeCallee.get.name)
+                val fileName = jsonEscape(maybeCallee.get.filename)
+                return s"""{"fileName": "${fileName}", "methodName": "${methodName}"}"""
+            }
+            return s"""{"fileName": "", "methodName": "", "unresolved": true}"""
         }
-    })
-    return s"""{"fileName": "", "methodName": ""}"""
+
+        //if it is not a method, it probably might be a variable
+        cpg.file.name(regexFileName).typeDecl.member.foreach(x => {
+            if(x.code.contains(methodCode) || methodCode.contains(x.code)){
+                return s"""{"isVariable": true}"""
+            }
+        })
+        return s"""{"fileName": "", "methodName": ""}"""
+    } catch {
+        case e: Throwable => {
+            val detail = jsonEscape(Option(e.getMessage).getOrElse(e.toString))
+            return s"""{"fileName": "", "methodName": "", "error": "astrail_lookup_exception", "detail": "${detail}"}"""
+        }
+    }
 }

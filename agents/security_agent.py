@@ -193,11 +193,43 @@ class SecurityAgent:
 
             resolver = getattr(astrail, "get_method_and_file_name", None)
             if callable(resolver):
-                return resolver(code, filename)
+                try:
+                    return resolver(code, filename)
+                except Exception as exc:
+                    logging.warning(
+                        "astrail_search_method_name failed for filename=%s code=%s: %s",
+                        filename,
+                        code,
+                        exc,
+                    )
+                    return json.dumps(
+                        {
+                            "fileName": "",
+                            "methodName": "",
+                            "error": "astrail_lookup_failed",
+                            "detail": str(exc),
+                        }
+                    )
 
             legacy_resolver = getattr(astrail, "getMethodAndFileName", None)
             if callable(legacy_resolver):
-                return legacy_resolver(code, filename)
+                try:
+                    return legacy_resolver(code, filename)
+                except Exception as exc:
+                    logging.warning(
+                        "astrail_search_method_name failed for filename=%s code=%s: %s",
+                        filename,
+                        code,
+                        exc,
+                    )
+                    return json.dumps(
+                        {
+                            "fileName": "",
+                            "methodName": "",
+                            "error": "astrail_lookup_failed",
+                            "detail": str(exc),
+                        }
+                    )
 
             return (
                 '{"fileName": "", "methodName": "", '

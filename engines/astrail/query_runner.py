@@ -149,8 +149,17 @@ def save_as_json(reports: Any, path: String): Unit = {
                 data = handle.read()
 
             if not data:
+                result = self._execute_query_sync(script)
+                if result.get("success") is False:
+                    raise AstrailEngineError(
+                        f"Astrail query retry failed: {result.get('error', 'unknown')}"
+                    )
+                with open(output_file, "r", encoding="utf-8") as handle:
+                    data = handle.read()
+
+            if not data:
                 raise AstrailEngineError(
-                    "Astrail execution produced empty output file."
+                    "Astrail execution produced empty output file after retry."
                 )
 
             return json.loads(data)
@@ -190,10 +199,26 @@ def execute_once = {{
         params_tmp = self._write_params_file({"code": code, "filename": filename})
         try:
             params_escaped = params_tmp.replace("\\", "\\\\")
-            result = self._execute_scala_query(
-                self._query_file_path("getFilenameFromMethodCode.scala"),
-                f'getMethodandFileName("{params_escaped}")',
-            )
+            try:
+                result = self._execute_scala_query(
+                    self._query_file_path("getFilenameFromMethodCode.scala"),
+                    f'getMethodandFileName("{params_escaped}")',
+                )
+            except AstrailEngineError as exc:
+                logging.warning(
+                    "Astrail method lookup failed for filename=%s code=%s: %s",
+                    filename,
+                    code,
+                    exc,
+                )
+                return json.dumps(
+                    {
+                        "fileName": "",
+                        "methodName": "",
+                        "error": "astrail_lookup_failed",
+                        "detail": str(exc),
+                    }
+                )
         finally:
             if os.path.exists(params_tmp):
                 try:

@@ -1,5 +1,5 @@
 from schema.config_schema import LLMConfig
-from utils.java_ast_parser import find_method_signature_line
+from utils.java_ast_parser import extract_method_from_file, find_method_signature_line
 from vulnerabilities.sensitive_logging.detectors import is_sensitive_log_snippet
 
 
@@ -60,3 +60,52 @@ def test_signature_line_missing_method_returns_none(tmp_path):
     src = tmp_path / "C.java"
     src.write_text("class C { void a() {} }\n")
     assert find_method_signature_line(str(src), "nope") is None
+
+
+def test_java_ast_parser_handles_non_ascii_before_methods(tmp_path):
+    src = tmp_path / "C.java"
+    src.write_text(
+        "/* Copyright \u00a9 test */\n"
+        "class C {\n"
+        "  @GetMapping(\"/files\")\n"
+        "  public String getFiles(String name) { return name; }\n"
+        "}\n",
+        encoding="utf-8",
+    )
+
+    body = extract_method_from_file(str(src), "getFiles")
+
+    assert "public String getFiles" in body
+    assert "return name" in body
+    assert find_method_signature_line(str(src), "getFiles") == 4
+
+
+def test_java_ast_parser_normalizes_signature_lookup(tmp_path):
+    src = tmp_path / "C.java"
+    src.write_text(
+        "class C {\n"
+        "  public String completed(String id) { return id; }\n"
+        "}\n",
+        encoding="utf-8",
+    )
+
+    body = extract_method_from_file(str(src), "completed(String)")
+
+    assert "public String completed" in body
+
+
+def test_java_ast_parser_extracts_constructors_and_fields(tmp_path):
+    src = tmp_path / "Assignment7.java"
+    src.write_text(
+        "class Assignment7 {\n"
+        "  private final String mailURL;\n"
+        "  public Assignment7(String mailURL) { this.mailURL = mailURL; }\n"
+        "}\n",
+        encoding="utf-8",
+    )
+
+    constructor = extract_method_from_file(str(src), "Assignment7")
+    field = extract_method_from_file(str(src), "mailURL")
+
+    assert "public Assignment7" in constructor
+    assert "private final String mailURL" in field
