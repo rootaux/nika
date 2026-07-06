@@ -17,12 +17,7 @@ rules:
       library_group: "spring-security"
     languages:
       - java
-    mode: taint
-
-    pattern-sources:
-      - pattern: $ANYTHING
-
-    pattern-sinks:
+    patterns:
       - pattern-either:
           # ========================================
           # RedirectStrategy.sendRedirect()

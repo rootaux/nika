@@ -17,12 +17,7 @@ rules:
       library_group: "servlet"
     languages:
       - java
-    mode: taint
-
-    pattern-sources:
-      - pattern: $ANYTHING
-
-    pattern-sinks:
+    patterns:
       - pattern-either:
           # ========================================
           # HttpServletResponse.sendRedirect()

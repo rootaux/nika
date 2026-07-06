@@ -61,6 +61,10 @@ class JsonReportWriter:
                 if api_path:
                     finding_data["apiPath"] = api_path
 
+                metadata = getattr(v, "metadata", None) or {}
+                if metadata:
+                    finding_data["metadata"] = metadata
+
                 if v.analysis:
                     finding_data["explanation"] = v.analysis.explanation
                     finding_data["remediation"] = v.analysis.remediation
@@ -71,6 +75,8 @@ class JsonReportWriter:
                         {
                             "methodname": node.method_name,
                             "filename": node.filename,
+                            "methodLineNumberStart": node.method_line_number_start,
+                            "methodLineNumberEnd": node.method_line_number_end,
                             "calleeLineNumber": node.callee_line_number,
                             "isExternal": node.is_external,
                         }

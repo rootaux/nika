@@ -47,3 +47,5 @@ negative:
     fixture: SafeSqlController.java
   idor:
     fixture: SafeIdorController.java
+  open_redirect:
+    fixture: SafeOpenRedirectController.java

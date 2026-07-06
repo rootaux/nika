@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -7,4 +9,4 @@ class Sink(BaseModel):
     line_number: int
     line_number_end: int | None = None
     code: str
-    metadata: dict[str, str] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)

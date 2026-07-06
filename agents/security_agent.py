@@ -41,9 +41,6 @@ def _get_config():
     return ConfigProvider.get_config()
 
 
-_SECURITY_AGENT_CHECKPOINTER = InMemorySaver()
-
-
 class AgentState(TypedDict):
     messages: Annotated[Sequence[BaseMessage], add_messages]
     iteration_count: int
@@ -132,7 +129,7 @@ class SecurityAgent:
         workflow.add_edge(START, "agent")
         workflow.add_conditional_edges("agent", self._should_continue)
         workflow.add_edge("tools", "agent")
-        return workflow.compile(checkpointer=_SECURITY_AGENT_CHECKPOINTER)
+        return workflow.compile(checkpointer=InMemorySaver())
 
     def _normalize_path(self, filename: str) -> str:
         if os.path.isabs(filename):
@@ -150,8 +147,11 @@ class SecurityAgent:
         @tool
         def code_search_tool(filename: str, method_name: str) -> str:
             """
-            Returns the method source code from the codebase given the filename and method name.
-            Use this when you need to inspect a function's implementation.
+            Returns Java method, constructor, or field source code from the codebase.
+            Use this when you need to inspect an implementation or DTO validation annotations.
+            Pass the exact symbol name: method name, constructor/class name, or field name
+            such as "username". Do not pass "class", "<init>", or "*" when you can name
+            the exact method, constructor, or field.
             """
             logging.info("code_search_tool called with filename: %s, method_name: %s", filename, method_name)
             normalized_path = self._normalize_path(filename)
@@ -196,11 +196,43 @@ class SecurityAgent:
 
             resolver = getattr(astrail, "get_method_and_file_name", None)
             if callable(resolver):
-                return resolver(code, filename)
+                try:
+                    return resolver(code, filename)
+                except Exception as exc:
+                    logging.warning(
+                        "astrail_search_method_name failed for filename=%s code=%s: %s",
+                        filename,
+                        code,
+                        exc,
+                    )
+                    return json.dumps(
+                        {
+                            "fileName": "",
+                            "methodName": "",
+                            "error": "astrail_lookup_failed",
+                            "detail": str(exc),
+                        }
+                    )
 
             legacy_resolver = getattr(astrail, "getMethodAndFileName", None)
             if callable(legacy_resolver):
-                return legacy_resolver(code, filename)
+                try:
+                    return legacy_resolver(code, filename)
+                except Exception as exc:
+                    logging.warning(
+                        "astrail_search_method_name failed for filename=%s code=%s: %s",
+                        filename,
+                        code,
+                        exc,
+                    )
+                    return json.dumps(
+                        {
+                            "fileName": "",
+                            "methodName": "",
+                            "error": "astrail_lookup_failed",
+                            "detail": str(exc),
+                        }
+                    )
 
             return (
                 '{"fileName": "", "methodName": "", '
@@ -213,14 +245,15 @@ class SecurityAgent:
         @tool
         def grep_for_code(code_snippet: str) -> str:
             """
-            Searches the codebase for the given code snippet (class name, method name, import statement, etc.).
-            Returns matching file names and line numbers ONLY if the code snippet exists in the codebase.
-            If no matches are found, returns empty result - this means the code/dependency is NOT used in the project.
-            RESTRICTION: This tool must ONLY be used when analyzing "Vulnerable and Outdated Dependencies" or "Cryptographic Failures" to check if vulnerable code is actually used.
-            
+            Searches the codebase for an exact code snippet, class name, method name,
+            field name, annotation, import statement, or validator call.
+            Use this to locate a symbol when you do not know the exact file or method.
+            If no matches are found, returns an empty result.
+
             TIPS:
-            1. Prefer searching for the package name (e.g. 'com.example.lib') to find all usages at once, rather than searching for individual classes or methods one by one.
-            2. If you find imports, the library is used. You can then search for specific vulnerable methods if needed.
+            1. Prefer code_search_tool once you know the filename and exact symbol.
+            2. For DTO validation, search for the field name or annotation, then fetch
+               the exact field with code_search_tool.
             """
             logging.info("grep_for_code called with snippet: %s", code_snippet)
             cmd = ["grep", "-rnF", "--", code_snippet, self.runtime_context.code_path]
@@ -511,6 +544,12 @@ class SecurityAgent:
 1. code_search_tool(filename, method_name)
 2. astrail_search_method_name(code, filename)
 3. grep_for_code(code_snippet)
+
+## TOOL CALL GUIDANCE
+- code_search_tool accepts an exact Java method, constructor, or field name.
+- For DTO/request validation, fetch the exact field, e.g. method_name="username".
+- For overloaded constructors/methods, include a signature if known, e.g. "User(String,String)".
+- Avoid method_name="class", "<init>", or "*" unless broad file context is the only way to proceed.
 
 ## TOOL USAGE LIMITS
 {limit_desc}- Use tools only when needed to resolve uncertainty.

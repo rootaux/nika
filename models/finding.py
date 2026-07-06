@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 from .trace import Trace
@@ -14,4 +16,4 @@ class Finding(BaseModel):
     remediation: str | None = None
     code_fix: str | None = None
     trace: Trace | None = None
-    metadata: dict[str, str] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)

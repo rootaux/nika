@@ -20,12 +20,7 @@ rules:
       library_group: "jaxrs"
     languages:
       - java
-    mode: taint
-
-    pattern-sources:
-      - pattern: $ANYTHING
-
-    pattern-sinks:
+    patterns:
       - pattern-either:
           # ========================================
           # JAX-RS 2.x (javax.ws.rs)

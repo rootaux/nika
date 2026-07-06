@@ -11,6 +11,7 @@ def test_api_path_from_metadata():
     assert v.class_api_path == "/api"
     assert v.method_api_path == "/users/{id}"
     assert v.filename == "C.java" and v.line_number == 5
+    assert v.metadata == {"class_api_path": "/api", "method_api_path": "/users/{id}"}
 
 
 def test_no_metadata_yields_none_api_path():

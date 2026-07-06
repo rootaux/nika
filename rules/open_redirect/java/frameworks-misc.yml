@@ -20,12 +20,7 @@ rules:
       library_group: "misc-frameworks"
     languages:
       - java
-    mode: taint
-
-    pattern-sources:
-      - pattern: $ANYTHING
-
-    pattern-sinks:
+    patterns:
       - pattern-either:
           # ========================================
           # Play Framework (Java API) - static Results

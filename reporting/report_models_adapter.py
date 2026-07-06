@@ -45,6 +45,7 @@ def _to_legacy_vulnerability(finding):
         filename=finding.file_path,
         class_api_path=metadata.get("class_api_path") or None,
         method_api_path=metadata.get("method_api_path") or None,
+        metadata=metadata,
     )
 
 

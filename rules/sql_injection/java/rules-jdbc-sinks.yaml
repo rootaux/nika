@@ -2,11 +2,21 @@ rules:
 - id: jdbc-statement-exec-sink
   patterns:
   - pattern-either:
-    - pattern: $STMT.executeQuery($SQL, ...)
-    - pattern: $STMT.executeUpdate($SQL, ...)
-    - pattern: $STMT.executeLargeUpdate($SQL, ...)
-    - pattern: $STMT.execute($SQL, ...)
-    - pattern: $STMT.addBatch($SQL, ...)
+    - pattern: (java.sql.Statement $STMT).executeQuery($SQL, ...)
+    - pattern: (java.sql.Statement $STMT).executeUpdate($SQL, ...)
+    - pattern: (java.sql.Statement $STMT).executeLargeUpdate($SQL, ...)
+    - pattern: (java.sql.Statement $STMT).execute($SQL, ...)
+    - pattern: (java.sql.Statement $STMT).addBatch($SQL, ...)
+    - pattern: (java.sql.PreparedStatement $STMT).executeQuery($SQL, ...)
+    - pattern: (java.sql.PreparedStatement $STMT).executeUpdate($SQL, ...)
+    - pattern: (java.sql.PreparedStatement $STMT).executeLargeUpdate($SQL, ...)
+    - pattern: (java.sql.PreparedStatement $STMT).execute($SQL, ...)
+    - pattern: (java.sql.PreparedStatement $STMT).addBatch($SQL, ...)
+    - pattern: (java.sql.CallableStatement $STMT).executeQuery($SQL, ...)
+    - pattern: (java.sql.CallableStatement $STMT).executeUpdate($SQL, ...)
+    - pattern: (java.sql.CallableStatement $STMT).executeLargeUpdate($SQL, ...)
+    - pattern: (java.sql.CallableStatement $STMT).execute($SQL, ...)
+    - pattern: (java.sql.CallableStatement $STMT).addBatch($SQL, ...)
   - pattern-not: $STMT.$M("...", ...)
   - pattern-not: $STMT.$M("...")
   - pattern-inside: "$METHOD(...) {\n  ...\n}"
@@ -18,11 +28,13 @@ rules:
     category: security
     cwe: 'CWE-89: SQL Injection'
     confidence: MEDIUM
+    sink_kind: sql
+    typed_sink: true
 - id: jdbc-connection-prepare-sink
   patterns:
   - pattern-either:
-    - pattern: $CONN.prepareStatement($SQL, ...)
-    - pattern: $CONN.prepareCall($SQL, ...)
+    - pattern: (java.sql.Connection $CONN).prepareStatement($SQL, ...)
+    - pattern: (java.sql.Connection $CONN).prepareCall($SQL, ...)
   - pattern-not: $CONN.$M("...", ...)
   - pattern-not: $CONN.$M("...")
   - pattern-inside: "$METHOD(...) {\n  ...\n}"
@@ -34,17 +46,45 @@ rules:
     category: security
     cwe: 'CWE-89: SQL Injection'
     confidence: MEDIUM
+    sink_kind: sql
+    typed_sink: true
 - id: spring-jdbctemplate-sink
   patterns:
   - pattern-either:
-    - pattern: $TEMPLATE.queryForObject($SQL, ...)
-    - pattern: $TEMPLATE.queryForList($SQL, ...)
-    - pattern: $TEMPLATE.queryForMap($SQL, ...)
-    - pattern: $TEMPLATE.queryForRowSet($SQL, ...)
-    - pattern: $TEMPLATE.query($SQL, ...)
-    - pattern: $TEMPLATE.update($SQL, ...)
-    - pattern: $TEMPLATE.execute($SQL, ...)
-    - pattern: $TEMPLATE.batchUpdate($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcTemplate $TEMPLATE).queryForObject($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcTemplate $TEMPLATE).queryForList($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcTemplate $TEMPLATE).queryForMap($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcTemplate $TEMPLATE).queryForRowSet($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcTemplate $TEMPLATE).query($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcTemplate $TEMPLATE).update($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcTemplate $TEMPLATE).execute($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcTemplate $TEMPLATE).batchUpdate($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcOperations $TEMPLATE).queryForObject($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcOperations $TEMPLATE).queryForList($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcOperations $TEMPLATE).queryForMap($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcOperations $TEMPLATE).queryForRowSet($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcOperations $TEMPLATE).query($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcOperations $TEMPLATE).update($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcOperations $TEMPLATE).execute($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.JdbcOperations $TEMPLATE).batchUpdate($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate $TEMPLATE).queryForObject($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate $TEMPLATE).queryForList($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate $TEMPLATE).queryForMap($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate $TEMPLATE).query($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate $TEMPLATE).update($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate $TEMPLATE).batchUpdate($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations $TEMPLATE).queryForObject($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations $TEMPLATE).queryForList($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations $TEMPLATE).queryForMap($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations $TEMPLATE).query($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations $TEMPLATE).update($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations $TEMPLATE).batchUpdate($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.simple.SimpleJdbcTemplate $TEMPLATE).queryForObject($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.simple.SimpleJdbcTemplate $TEMPLATE).queryForList($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.simple.SimpleJdbcTemplate $TEMPLATE).queryForMap($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.simple.SimpleJdbcTemplate $TEMPLATE).query($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.simple.SimpleJdbcTemplate $TEMPLATE).update($SQL, ...)
+    - pattern: (org.springframework.jdbc.core.simple.SimpleJdbcTemplate $TEMPLATE).batchUpdate($SQL, ...)
   - pattern-not: $TEMPLATE.$M("...", ...)
   - pattern-not: $TEMPLATE.$M("...")
   - pattern-inside: "$METHOD(...) {\n  ...\n}"
@@ -56,3 +96,118 @@ rules:
     category: security
     cwe: 'CWE-89: SQL Injection'
     confidence: MEDIUM
+    sink_kind: sql
+    typed_sink: true
+- id: spring-jdbcclient-sink
+  patterns:
+  - pattern-either:
+    - pattern: (org.springframework.jdbc.core.simple.JdbcClient $CLIENT).sql($SQL)
+    - pattern: (org.springframework.r2dbc.core.DatabaseClient $CLIENT).sql($SQL)
+  - pattern-not: $CLIENT.$M("...")
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages: [java]
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: MEDIUM
+    sink_kind: sql
+    typed_sink: true
+- id: jpa-hibernate-query-sink
+  patterns:
+  - pattern-either:
+    - pattern: (javax.persistence.EntityManager $ORM).createQuery($SQL, ...)
+    - pattern: (javax.persistence.EntityManager $ORM).createNativeQuery($SQL, ...)
+    - pattern: (jakarta.persistence.EntityManager $ORM).createQuery($SQL, ...)
+    - pattern: (jakarta.persistence.EntityManager $ORM).createNativeQuery($SQL, ...)
+    - pattern: (org.hibernate.Session $ORM).createQuery($SQL, ...)
+    - pattern: (org.hibernate.Session $ORM).createNativeQuery($SQL, ...)
+    - pattern: (org.hibernate.Session $ORM).createSQLQuery($SQL, ...)
+  - pattern-not: $ORM.$M("...", ...)
+  - pattern-not: $ORM.$M("...")
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages: [java]
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: MEDIUM
+    sink_kind: sql
+    typed_sink: true
+- id: jdbi-handle-sink
+  patterns:
+  - pattern-either:
+    - pattern: (org.jdbi.v3.core.Handle $HANDLE).createQuery($SQL, ...)
+    - pattern: (org.jdbi.v3.core.Handle $HANDLE).createUpdate($SQL, ...)
+    - pattern: (org.jdbi.v3.core.Handle $HANDLE).execute($SQL, ...)
+    - pattern: (org.jdbi.v3.core.Handle $HANDLE).select($SQL, ...)
+    - pattern: (org.skife.jdbi.v2.Handle $HANDLE).createQuery($SQL, ...)
+    - pattern: (org.skife.jdbi.v2.Handle $HANDLE).createStatement($SQL, ...)
+    - pattern: (org.skife.jdbi.v2.Handle $HANDLE).execute($SQL, ...)
+    - pattern: (org.skife.jdbi.v2.Handle $HANDLE).select($SQL, ...)
+  - pattern-not: $HANDLE.$M("...", ...)
+  - pattern-not: $HANDLE.$M("...")
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages: [java]
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: MEDIUM
+    sink_kind: sql
+    typed_sink: true
+- id: jooq-dslcontext-sink
+  patterns:
+  - pattern-either:
+    - pattern: (org.jooq.DSLContext $DSL).query($SQL, ...)
+    - pattern: (org.jooq.DSLContext $DSL).resultQuery($SQL, ...)
+    - pattern: (org.jooq.DSLContext $DSL).fetch($SQL, ...)
+    - pattern: (org.jooq.DSLContext $DSL).fetchOne($SQL, ...)
+    - pattern: (org.jooq.DSLContext $DSL).fetchMany($SQL, ...)
+    - pattern: (org.jooq.DSLContext $DSL).execute($SQL, ...)
+  - pattern-not: $DSL.$M("...", ...)
+  - pattern-not: $DSL.$M("...")
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages: [java]
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: MEDIUM
+    sink_kind: sql
+    typed_sink: true
+- id: vertx-sqlclient-sink
+  patterns:
+  - pattern-either:
+    - pattern: (io.vertx.sqlclient.SqlClient $CLIENT).query($SQL)
+    - pattern: (io.vertx.sqlclient.SqlClient $CLIENT).preparedQuery($SQL)
+    - pattern: (io.vertx.sqlclient.Pool $CLIENT).query($SQL)
+    - pattern: (io.vertx.sqlclient.Pool $CLIENT).preparedQuery($SQL)
+    - pattern: (io.vertx.sqlclient.SqlConnection $CLIENT).query($SQL)
+    - pattern: (io.vertx.sqlclient.SqlConnection $CLIENT).preparedQuery($SQL)
+    - pattern: (io.vertx.mutiny.sqlclient.SqlClient $CLIENT).query($SQL)
+    - pattern: (io.vertx.mutiny.sqlclient.SqlClient $CLIENT).preparedQuery($SQL)
+    - pattern: (io.vertx.mutiny.sqlclient.Pool $CLIENT).query($SQL)
+    - pattern: (io.vertx.mutiny.sqlclient.Pool $CLIENT).preparedQuery($SQL)
+    - pattern: (io.vertx.mutiny.sqlclient.SqlConnection $CLIENT).query($SQL)
+    - pattern: (io.vertx.mutiny.sqlclient.SqlConnection $CLIENT).preparedQuery($SQL)
+  - pattern-not: $CLIENT.$M("...")
+  - pattern-inside: "$METHOD(...) {\n  ...\n}"
+  - pattern-inside: "class $CLASS {\n  ...\n}"
+  message: 'Class: $CLASS, Method: $METHOD'
+  severity: ERROR
+  languages: [java]
+  metadata:
+    category: security
+    cwe: 'CWE-89: SQL Injection'
+    confidence: MEDIUM
+    sink_kind: sql
+    typed_sink: true

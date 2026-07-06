@@ -1,10 +1,10 @@
+import logging
 import os
 import re
 
 from models.evidence import EvidenceBundle
 from models.finding import Finding
 from vulnerabilities.base.security_agent_reviewer import run_security_agent_review
-import logging
 
 def empty_evidence_bundle() -> EvidenceBundle:
     return EvidenceBundle()
@@ -105,7 +105,34 @@ def run_dataflow_without_sinks(vulnerability, context, state):
     )
     return state
 
+
+def _source_lookup(sources):
+    return {
+        source.symbol: source
+        for source in (sources or [])
+        if getattr(source, "symbol", None)
+    }
+
+
+def _single_matching_sink_for_trace(sinks, trace):
+    matches = _matching_sinks_for_trace(sinks or [], trace)
+    return matches[0] if len(matches) == 1 else None
+
+
+def _enrich_trace_for_review(trace, sinks, sources):
+    source_lookup = _source_lookup(sources)
+    source = getattr(trace, "source", None) or source_lookup.get(
+        getattr(trace, "source_symbol", None)
+    )
+    sink = getattr(trace, "sink", None) or _single_matching_sink_for_trace(sinks, trace)
+    return trace.model_copy(update={"source": source, "sink": sink})
+
+
 def review_traces_with_llm(vulnerability, context, state):
+    state.traces = [
+        _enrich_trace_for_review(trace, getattr(state, "sinks", None), getattr(state, "sources", None))
+        for trace in state.traces
+    ]
     state.reviews = [
         run_security_agent_review(vulnerability, context, trace)
         for trace in state.traces
@@ -144,9 +171,19 @@ def build_trace_human_prompt(vulnerability, trace):
 
     prompt_lines = [
         opening_instruction,
+        f"Candidate vulnerability: {getattr(vulnerability, 'vulnerability_id', 'unknown')}",
         f"Sink location: {trace.sink_file_path}:{trace.sink_line_number}",
-        "Trace:",
     ]
+
+    source_evidence = _format_source_evidence(getattr(trace, "source", None))
+    if source_evidence:
+        prompt_lines.extend(["Source evidence:", source_evidence])
+
+    sink_evidence = _format_sink_evidence(getattr(trace, "sink", None), trace)
+    if sink_evidence:
+        prompt_lines.extend(["Sink evidence:", sink_evidence])
+
+    prompt_lines.append("Trace:")
 
     for index, node in enumerate(trace.nodes, start=1):
         prompt_lines.append(
@@ -161,7 +198,76 @@ def build_trace_human_prompt(vulnerability, trace):
 
 
 def shared_prompt_closing_sentence():
-    return "Decide whether attacker-controlled input can reach the sink unsafely."
+    return (
+        "Decide whether attacker-controlled input reaches this vulnerability "
+        "class's sink unsafely. If the evidence reaches a different sink "
+        "category, return NOT_VULNERABLE. If the evidence is insufficient, "
+        "return NEED_MANUAL_REVIEW."
+    )
+
+
+def _format_source_evidence(source):
+    if source is None:
+        return ""
+
+    metadata = getattr(source, "metadata", None) or {}
+    path = (metadata.get("class_api_path") or "") + (metadata.get("method_api_path") or "")
+    lines = [
+        f"Location: {source.file_path}:{source.line_number}",
+        f"Symbol: {source.symbol}",
+    ]
+    if path:
+        lines.append(f"API path: {path}")
+    if source.code:
+        lines.extend(["Code:", source.code])
+    return "\n".join(lines)
+
+
+def _format_sink_evidence(sink, trace):
+    if sink is None:
+        return f"Location: {trace.sink_file_path}:{trace.sink_line_number}"
+
+    metadata = getattr(sink, "metadata", None) or {}
+    lines = [
+        f"Location: {sink.file_path}:{sink.line_number}",
+        f"Rule ID: {sink.rule_id or metadata.get('rule_id') or 'unknown'}",
+    ]
+    if metadata.get("sink_kind"):
+        lines.append(f"Sink kind: {metadata.get('sink_kind')}")
+    if "request_controlled" in metadata:
+        lines.append(f"Request controlled: {metadata.get('request_controlled')}")
+    if metadata.get("source_param"):
+        source_text = metadata.get("source_param")
+        if metadata.get("source_kind"):
+            source_text = f"{metadata.get('source_kind')} {source_text}"
+        lines.append(f"Source parameter: {source_text}")
+    if metadata.get("sink_argument"):
+        lines.append(f"Sink argument: {metadata.get('sink_argument')}")
+    if metadata.get("flow_summary"):
+        lines.append(f"Flow summary: {metadata.get('flow_summary')}")
+    if metadata.get("validation_evidence"):
+        lines.append(f"Validation evidence: {metadata.get('validation_evidence')}")
+    if metadata.get("flow_confidence"):
+        lines.append(f"Flow confidence: {metadata.get('flow_confidence')}")
+    if metadata.get("confidence"):
+        lines.append(f"Rule confidence: {metadata.get('confidence')}")
+    if sink.code:
+        lines.extend(["Code:", sink.code])
+
+    metavars = metadata.get("metavars")
+    if isinstance(metavars, dict) and metavars:
+        lines.append("Metavariables:")
+        for name, value in sorted(metavars.items()):
+            if not isinstance(value, dict):
+                continue
+            rendered = value.get("abstract_content") or ""
+            propagated = value.get("propagated_value")
+            if propagated:
+                rendered = f"{rendered} (propagated from {propagated})"
+            if rendered:
+                lines.append(f"- {name}: {rendered}")
+
+    return "\n".join(lines)
 
 
 def build_sink_human_prompt(vulnerability, sink):
@@ -217,6 +323,9 @@ def _matching_sinks_for_trace(sinks, trace):
 
 def _finding_from_sink(vulnerability_id, sink, review=None, trace=None, metadata=None):
     review = review or {}
+    sink_metadata = dict(getattr(sink, "metadata", None) or {})
+    if getattr(sink, "rule_id", None):
+        sink_metadata.setdefault("rule_id", sink.rule_id)
     return Finding(
         vulnerability_id=vulnerability_id,
         sink=sink.code,
@@ -228,7 +337,7 @@ def _finding_from_sink(vulnerability_id, sink, review=None, trace=None, metadata
         remediation=review.get("remediation"),
         code_fix=review.get("code_fix"),
         trace=trace,
-        metadata=metadata or getattr(sink, "metadata", None) or {},
+        metadata=metadata or sink_metadata,
     )
 
 
@@ -249,6 +358,17 @@ def _api_path_metadata(trace, source_lookup):
     if method_api_path:
         api_path["method_api_path"] = method_api_path
     return api_path
+
+
+def _trace_finding_metadata(sink, trace, source_lookup):
+    metadata = dict(getattr(sink, "metadata", None) or {})
+    trace_sink = getattr(trace, "sink", None)
+    if trace_sink is not None:
+        metadata.update(getattr(trace_sink, "metadata", None) or {})
+    if getattr(sink, "rule_id", None):
+        metadata.setdefault("rule_id", sink.rule_id)
+    metadata.update(_api_path_metadata(trace, source_lookup))
+    return metadata
 
 
 def findings_from_trace_review(vulnerability_id: str, sinks, traces, reviews, source_lookup=None):
@@ -287,7 +407,7 @@ def findings_from_trace_review(vulnerability_id: str, sinks, traces, reviews, so
                 sink,
                 review=review,
                 trace=trace,
-                metadata=_api_path_metadata(trace, source_lookup),
+                metadata=_trace_finding_metadata(sink, trace, source_lookup),
             )
         )
 
@@ -311,11 +431,7 @@ def finalize_trace_findings(vulnerability, context, state):
     reviews = getattr(state, "reviews", None) or [
         vulnerability.llm_reviewer("", "") for _ in state.traces
     ]
-    source_lookup = {
-        source.symbol: source
-        for source in (getattr(state, "sources", None) or [])
-        if getattr(source, "symbol", None)
-    }
+    source_lookup = _source_lookup(getattr(state, "sources", None))
     return findings_from_trace_review(
         vulnerability.vulnerability_id,
         state.sinks,

@@ -24,6 +24,7 @@ WORKDIR /home/nika
 COPY requirements.txt .
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
 
+COPY config ./config
 COPY . .
 
 ENV JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"

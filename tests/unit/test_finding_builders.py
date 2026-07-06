@@ -1,8 +1,11 @@
 from types import SimpleNamespace
 
 from models.sink import Sink
+from models.source import Source
+from models.trace import Trace, TraceNode
 from vulnerabilities.base.stages import (
     _finding_from_sink,
+    build_trace_human_prompt,
     _normalize_path,
     _review_status,
     default_llm_review,
@@ -31,7 +34,7 @@ def test_normalize_path():
 def test_finding_from_sink_falls_back_to_sink_metadata():
     s = _sink(metadata={"class_api_path": "/api", "method_api_path": "/x"})
     f = _finding_from_sink("idor", s, review={"explanation": "e", "status": "VULNERABLE"})
-    assert f.metadata == {"class_api_path": "/api", "method_api_path": "/x"}
+    assert f.metadata == {"class_api_path": "/api", "method_api_path": "/x", "rule_id": "r"}
     assert f.explanation == "e" and f.status == "VULNERABLE" and f.sink == "code"
 
 
@@ -43,7 +46,7 @@ def test_finding_from_sink_explicit_metadata_wins():
 
 def test_finding_from_sink_without_metadata_is_empty():
     f = _finding_from_sink("x", _sink(), review={})
-    assert f.metadata == {}
+    assert f.metadata == {"rule_id": "r"}
 
 
 def test_default_llm_review_uses_fallbacks():
@@ -71,4 +74,57 @@ def test_findings_from_sink_review_pairs_and_carries_metadata():
     findings = findings_from_sink_review("v", sinks, reviews)
     assert len(findings) == 1
     assert findings[0].status == "NEED_MANUAL_REVIEW"
-    assert findings[0].metadata == {"class_api_path": "/a"}
+    assert findings[0].metadata == {"class_api_path": "/a", "rule_id": "r"}
+
+
+def test_trace_prompt_includes_explicit_source_sink_and_metavars():
+    source = Source(
+        symbol="com.example.C.fetch:String(java.lang.String)",
+        file_path="src/C.java",
+        line_number=10,
+        code="public String fetch(@RequestParam String url) { ... }",
+        metadata={"method_api_path": "/fetch"},
+    )
+    sink = Sink(
+        rule_id="rules.sql_injection.java.jdbc-statement-exec-sink",
+        file_path="src/C.java",
+        line_number=13,
+        code="client.execute(request);",
+        metadata={
+            "rule_id": "rules.sql_injection.java.jdbc-statement-exec-sink",
+            "sink_kind": "sql",
+            "request_controlled": False,
+            "confidence": "MEDIUM",
+            "metavars": {
+                "$SQL": {
+                    "abstract_content": "request",
+                    "propagated_value": "new HttpGet(url)",
+                }
+            },
+        },
+    )
+    trace = Trace(
+        sink_file_path="src/C.java",
+        sink_line_number=13,
+        source_symbol=source.symbol,
+        source=source,
+        sink=sink,
+        nodes=[
+            TraceNode(
+                method_name="fetch",
+                file_path="src/C.java",
+                method_line_number_start=10,
+                code="public String fetch(@RequestParam String url) { ... }",
+            )
+        ],
+    )
+    vuln = SimpleNamespace(vulnerability_id="sql_injection", human_prompt="Analyze.")
+
+    prompt = build_trace_human_prompt(vuln, trace)
+
+    assert "Candidate vulnerability: sql_injection" in prompt
+    assert "Source evidence:" in prompt
+    assert "Sink evidence:" in prompt
+    assert "Rule ID: rules.sql_injection.java.jdbc-statement-exec-sink" in prompt
+    assert "Request controlled: False" in prompt
+    assert "$SQL: request (propagated from new HttpGet(url))" in prompt

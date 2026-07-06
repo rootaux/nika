@@ -155,10 +155,19 @@ class HtmlReportRenderer:
 
     def _trace_code_block(self, v: Vulnerability) -> str:
         flow_segments = []
+        rendered_locations = set()
+        evidence = self._evidence_summary(v)
+        if evidence:
+            flow_segments.append(evidence)
 
         if v.call_graph and len(v.call_graph) > 0:
             for i, node in enumerate(v.call_graph):
-                if i == 0:
+                if i == 0 and len(v.call_graph) == 1:
+                    section_title = "Source"
+                    line_no = node.callee_line_number
+                    if not line_no or line_no < 1:
+                        line_no = node.method_line_number_start if node.method_line_number_start and node.method_line_number_start > 0 else 1
+                elif i == 0:
                     section_title = "Source"
                     line_no = node.callee_line_number
                     if not line_no or line_no < 1:
@@ -177,12 +186,21 @@ class HtmlReportRenderer:
                 flow_segments.append(
                     f'<div class="flow-step-title">{section_title} ({escape_html(node.filename)}:{line_no})</div>{rendered}'
                 )
+                rendered_locations.add((node.filename, line_no))
+
+            sink_location = (v.filename, v.line_number)
+            if v.filename and v.line_number and sink_location not in rendered_locations:
+                before, target, after, start_line = self._reader.read_segment(v.filename, v.line_number)
+                rendered = self._reader.render_snippet(before, target, after, int(start_line))
+                flow_segments.append(
+                    f'<div class="flow-step-title">Sink ({escape_html(v.filename)}:{v.line_number})</div>{rendered}'
+                )
         elif v.filename:
             line_no = v.line_number
             before, target, after, start_line = self._reader.read_segment(v.filename, line_no)
             rendered = self._reader.render_snippet(before, target, after, int(start_line))
             flow_segments.append(
-                f'<div class="flow-step-title">Vulnerable Sink ({escape_html(v.filename)}:{line_no})</div>{rendered}'
+                f'<div class="flow-step-title">Sink ({escape_html(v.filename)}:{line_no})</div>{rendered}'
             )
 
         else:
@@ -196,6 +214,25 @@ class HtmlReportRenderer:
             + ''.join(flow_segments)
             + '</div>'
         )
+
+    @staticmethod
+    def _evidence_summary(v: Vulnerability) -> str:
+        metadata = getattr(v, "metadata", None) or {}
+        rows = []
+        for label, key in (
+            ("Flow", "flow_summary"),
+            ("Source", "source_param"),
+            ("Sink argument", "sink_argument"),
+            ("Validation", "validation_evidence"),
+        ):
+            value = metadata.get(key)
+            if value:
+                rows.append(
+                    f'<div><strong>{escape_html(label)}:</strong> {escape_html(str(value))}</div>'
+                )
+        if not rows:
+            return ""
+        return '<div class="explanation">' + ''.join(rows) + '</div>'
 
     # ------------------------------------------------------------------
     # Page structure helpers

@@ -1,5 +1,8 @@
 from pydantic import BaseModel, Field
 
+from .sink import Sink
+from .source import Source
+
 
 class TraceNode(BaseModel):
     method_name: str
@@ -17,3 +20,5 @@ class Trace(BaseModel):
     sink_line_number: int
     nodes: list[TraceNode] = Field(default_factory=list)
     source_symbol: str | None = None
+    source: Source | None = None
+    sink: Sink | None = None

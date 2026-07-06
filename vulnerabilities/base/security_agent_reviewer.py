@@ -1,4 +1,5 @@
 from __future__ import annotations
+import hashlib
 from typing import Any
 
 from schema.vulnerability_schema import LLMVulnerabilityOutput
@@ -32,6 +33,26 @@ def _normalize_review(output, vulnerability) -> dict[str, Any]:
         "remediation": review.get("remediation"),
         "code_fix": review.get("code_fix"),
     }
+
+
+def _evidence_thread_id(vulnerability, evidence) -> str:
+    if hasattr(evidence, "sink_file_path"):
+        parts = [
+            getattr(vulnerability, "vulnerability_id", "unknown"),
+            getattr(evidence, "source_symbol", "") or "",
+            getattr(evidence, "sink_file_path", "") or "",
+            str(getattr(evidence, "sink_line_number", "") or ""),
+        ]
+    else:
+        parts = [
+            getattr(vulnerability, "vulnerability_id", "unknown"),
+            getattr(evidence, "rule_id", "") or "",
+            getattr(evidence, "file_path", "") or "",
+            str(getattr(evidence, "line_number", "") or ""),
+        ]
+
+    digest = hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()[:16]
+    return f"{parts[0]}:{digest}"
 
 
 def run_security_agent_review(
@@ -74,7 +95,7 @@ def run_security_agent_review(
     )
 
     try:
-        thread_id = str(vulnerability.vulnerability_id)
+        thread_id = _evidence_thread_id(vulnerability, evidence)
         with agent_factory(
             runtime_context=runtime_context,
             system_prompt=system_prompt,

@@ -18,7 +18,16 @@ def test_translate_opengrep_relativizes_path_and_maps_fields():
         "path": "/repo/src/A.java",
         "start": {"line": 12},
         "end": {"line": 14},
-        "extra": {"lines": "  em.createQuery(sql)  "},
+        "extra": {
+            "lines": "  em.createQuery(sql)  ",
+            "metadata": {"confidence": "HIGH", "sink_kind": "sql"},
+            "metavars": {
+                "$SQL": {
+                    "abstract_content": "sql",
+                    "propagated_value": {"svalue_abstract_content": "name + suffix"},
+                }
+            },
+        },
     }]}
     sinks = translate_opengrep_results(raw, "/repo")
     assert len(sinks) == 1
@@ -27,6 +36,11 @@ def test_translate_opengrep_relativizes_path_and_maps_fields():
     assert s.line_number == 12 and s.line_number_end == 14
     assert s.code == "em.createQuery(sql)"
     assert s.rule_id == "rules.sqli.java-hibernate"
+    assert s.metadata["rule_id"] == "rules.sqli.java-hibernate"
+    assert s.metadata["confidence"] == "HIGH"
+    assert s.metadata["sink_kind"] == "sql"
+    assert s.metadata["metavars"]["$SQL"]["abstract_content"] == "sql"
+    assert s.metadata["metavars"]["$SQL"]["propagated_value"] == "name + suffix"
 
 
 def test_translate_opengrep_accepts_string_payload_and_empty_results():
