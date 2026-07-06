@@ -93,9 +93,6 @@ def test_trace_prompt_includes_explicit_source_sink_and_metavars():
         metadata={
             "rule_id": "rules.sql_injection.java.jdbc-statement-exec-sink",
             "sink_kind": "sql",
-            "sink_argument_source": "opengrep-metavariable",
-            "sink_argument_role": "sql_query_text",
-            "query_construction": "concatenation",
             "request_controlled": False,
             "confidence": "MEDIUM",
             "metavars": {
@@ -130,7 +127,4 @@ def test_trace_prompt_includes_explicit_source_sink_and_metavars():
     assert "Sink evidence:" in prompt
     assert "Rule ID: rules.sql_injection.java.jdbc-statement-exec-sink" in prompt
     assert "Request controlled: False" in prompt
-    assert "Sink argument source: opengrep-metavariable" in prompt
-    assert "Sink argument role: sql_query_text" in prompt
-    assert "Query construction: concatenation" in prompt
     assert "$SQL: request (propagated from new HttpGet(url))" in prompt

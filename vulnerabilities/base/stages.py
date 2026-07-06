@@ -243,12 +243,6 @@ def _format_sink_evidence(sink, trace):
         lines.append(f"Source parameter: {source_text}")
     if metadata.get("sink_argument"):
         lines.append(f"Sink argument: {metadata.get('sink_argument')}")
-    if metadata.get("sink_argument_source"):
-        lines.append(f"Sink argument source: {metadata.get('sink_argument_source')}")
-    if metadata.get("sink_argument_role"):
-        lines.append(f"Sink argument role: {metadata.get('sink_argument_role')}")
-    if metadata.get("query_construction"):
-        lines.append(f"Query construction: {metadata.get('query_construction')}")
     if metadata.get("flow_summary"):
         lines.append(f"Flow summary: {metadata.get('flow_summary')}")
     if metadata.get("validation_evidence"):
