@@ -16,6 +16,11 @@ rules:
           - pattern: $CLASS.getDeclaredMethod($INPUT, ...)
           - pattern: $CLASS.getField($INPUT)
           - pattern: $CLASS.getDeclaredField($INPUT)
+      - metavariable-type:
+          metavariable: $CLASS
+          types:
+            - Class
+            - java.lang.Class
       - pattern-not: $CLASS.getMethod("...", ...)
       - pattern-not: $CLASS.getDeclaredMethod("...", ...)
       - pattern-not: $CLASS.getField("...")
@@ -52,3 +57,8 @@ rules:
       technology: [java]
     patterns:
       - pattern: $CTOR.newInstance($ARG, ...)
+      - metavariable-type:
+          metavariable: $CTOR
+          types:
+            - Constructor
+            - java.lang.reflect.Constructor

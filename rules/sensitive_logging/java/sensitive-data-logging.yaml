@@ -14,5 +14,16 @@ rules:
           - pattern: $LOG.warn(...)
           - pattern: $LOG.error(...)
           - pattern: $LOG.fatal(...)
+      # Constrain the receiver to known logger types
+      - metavariable-type:
+          metavariable: $LOG
+          types:
+            - Logger
+            - org.slf4j.Logger
+            - java.util.logging.Logger
+            - org.apache.logging.log4j.Logger
+            - ch.qos.logback.classic.Logger
+            - Log
+            - org.apache.commons.logging.Log
       # Ignore logs that are purely static literal strings
       - pattern-not: $LOG.$METHOD("...")
