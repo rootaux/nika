@@ -25,14 +25,7 @@ rules:
           # ========================================
           # java.net.URL - Core Java HTTP/networking
           # ========================================
-          
-          # URL constructor - accepts arbitrary URLs
-          - pattern: new URL($TAINT)
-          - pattern: new URL($TAINT, ...)
-          
-          # URI constructor (alternative to URL)
-          - pattern: new URI($TAINT)
-          
+
           # openConnection() - opens connection to URL resource
           - pattern: (java.net.URL $URL).openConnection()
           - pattern: (java.net.URL $URL).openConnection($PROXY)

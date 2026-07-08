@@ -7,3 +7,8 @@ rules:
       Potential Command Injection via MVEL expressions.
     patterns:
       - pattern: $MVEL.executeExpression(...)
+      - metavariable-type:
+          metavariable: $MVEL
+          types:
+            - MVEL
+            - org.mvel2.MVEL

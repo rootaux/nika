@@ -19,6 +19,11 @@ rules:
           - pattern: CommandLine.parse($INPUT, ...)
           - pattern: $CL.addArguments($INPUT, ...)
           - pattern: $CL.addArgument($INPUT, ...)
+      - metavariable-type:
+          metavariable: $CL
+          types:
+            - CommandLine
+            - org.apache.commons.exec.CommandLine
       - pattern-not: CommandLine.parse("...")
       - pattern-not: org.apache.commons.exec.CommandLine.parse("...")
       - pattern-not: $CL.addArgument("...", ...)

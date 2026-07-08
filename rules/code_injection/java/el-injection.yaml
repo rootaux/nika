@@ -28,6 +28,19 @@ rules:
     - pattern: $EF.createValueExpression($CTX, $INPUT, ...)
     - pattern: $EF.createMethodExpression($CTX, $INPUT, ...)
     - pattern: $OBJECT.buildConstraintViolationWithTemplate($INPUT, ...)
+  # Constrain the receivers to the known EL / validation types
+  - metavariable-type:
+      metavariable: $EF
+      types:
+        - ExpressionFactory
+        - javax.el.ExpressionFactory
+        - jakarta.el.ExpressionFactory
+  - metavariable-type:
+      metavariable: $OBJECT
+      types:
+        - ConstraintValidatorContext
+        - javax.validation.ConstraintValidatorContext
+        - jakarta.validation.ConstraintValidatorContext
   # Filter out safe, hardcoded expressions
   - pattern-not: $EF.createValueExpression($CTX, "...", ...)
   - pattern-not: $EF.createMethodExpression($CTX, "...", ...)
