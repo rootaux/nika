@@ -73,8 +73,18 @@ class AstrailEngine:
                 pairs, sanitizers=sanitizers
             )
         else:
+            exclude_source_args = getattr(config, "exclude_source_args", None)
+            exclude_arg_annotations = (
+                list(exclude_source_args.annotations) if exclude_source_args else []
+            )
+            exclude_arg_types = (
+                list(exclude_source_args.types) if exclude_source_args else []
+            )
             batch_result = self._get_query_runner().run_batch_reachability(
-                pairs, sanitizers=sanitizers
+                pairs,
+                sanitizers=sanitizers,
+                exclude_arg_annotations=exclude_arg_annotations,
+                exclude_arg_types=exclude_arg_types,
             )
 
         return translate_batch_reachability(batch_result)
