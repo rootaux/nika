@@ -3,11 +3,21 @@ from time import perf_counter
 
 from config_provider import ConfigProvider
 from reporting.report_generator import ReportGenerator
-from reporting.report_models_adapter import group_findings_for_legacy_report
+from reporting.report_models_adapter import (
+    collect_degraded_findings,
+    group_findings_for_legacy_report,
+)
+from reporting.owasp import resolve_owasp_category_map
 
 from runtime.registry import Registry, build_default_registry
 from runtime.scan_runner import ScanRunner
+from utils.common import count_lines_of_code
 from utils.token_tracker import TokenTracker
+
+
+_LANGUAGE_SOURCE_EXTENSIONS = {
+    "java": [".java"],
+}
 
 
 class LegacyReportStateAdapter:
@@ -160,13 +170,42 @@ class NikaApplicationRuntime:
         report_input = group_findings_for_legacy_report(
             findings, vulnerability_metadata
         )
+        degraded_findings = collect_degraded_findings(findings, vulnerability_metadata)
+        owasp_by_id = resolve_owasp_category_map(
+            ConfigProvider.get_config().owasp_category_map
+        )
+        owasp_category_map = {
+            getattr(metadata, "title", vulnerability_name): owasp_by_id.get(
+                vulnerability_name, ""
+            )
+            for vulnerability_name, metadata in vulnerability_metadata.items()
+        }
         run_stats = self.scan_runner.last_run_stats
         report_state = LegacyReportStateAdapter(
             request,
             total_sources_found=run_stats.total_sources if run_stats is not None else 0,
             total_time_taken=self._format_duration(elapsed_seconds),
         )
-        ReportGenerator(report_input, report_state, scan_type="FullScan").generate_report(
+        debug_metadata = None
+        if getattr(request, "debug", False):
+            extensions = _LANGUAGE_SOURCE_EXTENSIONS.get(request.language, [])
+            loc_stats = count_lines_of_code(request.path, extensions)
+            debug_metadata = {
+                "scanPath": request.path,
+                "language": request.language,
+                "totalTimeSeconds": round(elapsed_seconds, 2),
+                "totalSourcesFound": run_stats.total_sources if run_stats is not None else 0,
+                "enabledVulnerabilities": list(request.enabled_vulnerabilities),
+                **loc_stats,
+            }
+        ReportGenerator(
+            report_input,
+            report_state,
+            scan_type="FullScan",
+            degraded_findings=degraded_findings,
+            owasp_category_map=owasp_category_map,
+            debug_metadata=debug_metadata,
+        ).generate_report(
             output_path=request.output
         )
         self._log_scan_summary(request, findings, elapsed_seconds)

@@ -8,9 +8,12 @@ from schema.vulnerability_schema import Vulnerabilities
 class JsonReportWriter:
     """Generates JSON reports containing only VULNERABLE or NEED_MANUAL_REVIEW findings."""
 
-    def generate(self, findings: list, output_path: str = "report.json") -> str:
+    def generate(self, findings: list, output_path: str = "report.json", degraded_findings: list | None = None, owasp_category_map: dict | None = None, debug_metadata: dict | None = None) -> str:
         vulnerable_findings = []
         seen_findings: set = set()
+        owasp_category_map = owasp_category_map or {}
+        debug_enabled = debug_metadata is not None
+        total_call_nodes = 0
 
         for entry in findings:
             vuln_name = entry.get("VULNERABILITY_TITLE", entry.get("vulnerability", "Unknown"))
@@ -29,7 +32,7 @@ class JsonReportWriter:
                 else:
                     status = "VULNERABLE"
 
-                if status.strip().upper() not in ("VULNERABLE", "NEED_MANUAL_REVIEW", "ENGINE_FAILURE"):
+                if status.strip().upper() not in ("VULNERABLE", "NEED_MANUAL_REVIEW"):
                     continue
 
                 dedup_key = (
@@ -46,6 +49,7 @@ class JsonReportWriter:
                 finding_data = {
                     "vulnerability": vuln_name,
                     "description": vuln_description,
+                    "owaspCategory": owasp_category_map.get(vuln_name, ""),
                     "status": status,
                     "sink": v.sink,
                     "filename": v.filename,
@@ -83,16 +87,55 @@ class JsonReportWriter:
                         for node in v.call_graph
                     ]
 
+                if debug_enabled:
+                    call_node_count = v.call_node_count
+                    if call_node_count is None:
+                        call_node_count = len(v.call_graph or [])
+                    total_call_nodes += call_node_count
+
+                    total_trace_loc = 0
+                    for node_data, node in zip(finding_data.get("callGraph", []), v.call_graph or []):
+                        start = node.method_line_number_start
+                        end = node.method_line_number_end
+                        loc = (end - start + 1) if (start and end and end >= start) else None
+                        if loc is not None:
+                            total_trace_loc += loc
+                        node_data["debug"] = {
+                            "linesOfCode": loc,
+                        }
+
+                    finding_data["debug"] = {
+                        "callNodesBetweenSourceAndSink": call_node_count,
+                        "totalTraceLinesOfCode": total_trace_loc,
+                    }
+
                 vulnerable_findings.append(finding_data)
+
+        degraded_findings = degraded_findings or []
 
         report = {
             "reportType": "SAST",
             "totalVulnerableFindings": len(vulnerable_findings),
+            "owaspCategoryMap": owasp_category_map,
             "findings": vulnerable_findings,
+            "degradedFindings": degraded_findings,
         }
+
+        if debug_enabled:
+            report["debug"] = {
+                **debug_metadata,
+                "totalReportedFindings": len(vulnerable_findings),
+                "totalDegradedFindings": len(degraded_findings),
+                "totalCallNodes": total_call_nodes,
+            }
 
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(report, f, indent=2)
 
-        logging.info("JSON report generated at %s with %d vulnerable findings", output_path, len(vulnerable_findings))
+        logging.info(
+            "JSON report generated at %s with %d vulnerable findings and %d degraded findings",
+            output_path,
+            len(vulnerable_findings),
+            len(degraded_findings),
+        )
         return output_path

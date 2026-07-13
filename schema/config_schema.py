@@ -44,6 +44,10 @@ class ConfigSchema(BaseModel):
     )
     llm_review_enabled: bool = Field(default=True, alias="llmReviewEnabled")
     aggressive_scan: bool = Field(default=False, alias="aggressiveScan")
+    owasp_category_map: Optional[Dict[str, str]] = Field(
+        default=None,
+        alias="owaspCategoryMap"
+    )
     exclude_source_args: SourceArgExclusionConfig = Field(
         default_factory=SourceArgExclusionConfig,
         alias="excludeSourceArgs",

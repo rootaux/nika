@@ -72,3 +72,28 @@ def execute_command(
         )
 
     return result
+
+
+def count_lines_of_code(path: str, extensions: Sequence[str]) -> dict:
+    normalized = tuple(
+        ext.lower() if ext.startswith(".") else f".{ext.lower()}" for ext in extensions
+    )
+    total_files = 0
+    total_lines = 0
+    if not path or not os.path.isdir(path):
+        return {"totalSourceFiles": 0, "totalLinesOfCode": 0}
+
+    for root, _dirs, files in os.walk(path):
+        for name in files:
+            if not name.lower().endswith(normalized):
+                continue
+            total_files += 1
+            file_path = os.path.join(root, name)
+            try:
+                with open(file_path, "r", encoding="utf-8", errors="ignore") as handle:
+                    total_lines += sum(1 for _ in handle)
+            except OSError:
+                continue
+
+    return {"totalSourceFiles": total_files, "totalLinesOfCode": total_lines}
+

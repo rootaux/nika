@@ -22,3 +22,4 @@ class Trace(BaseModel):
     source_symbol: str | None = None
     source: Source | None = None
     sink: Sink | None = None
+    call_node_count: int | None = None

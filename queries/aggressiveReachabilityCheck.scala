@@ -227,7 +227,8 @@ def findAggressivePathsBatch(paramsPath: String, outputPath: String, sanitizers:
 
                             if (pathEntries.nonEmpty) {
                                 val pathJson = pathEntries.mkString("[", ",", "]")
-                                val entryJson = s"""{"source":"${esc(sourceFullName)}","lineNumber":$lineNumber,"fileName":"${esc(fileName)}","path":$pathJson}"""
+                                val callNodeCount = math.max(chain.size - 1, 0)
+                                val entryJson = s"""{"source":"${esc(sourceFullName)}","lineNumber":$lineNumber,"fileName":"${esc(fileName)}","callNodeCount":$callNodeCount,"path":$pathJson}"""
                                 allResults.append(entryJson)
                             }
                         }

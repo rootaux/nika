@@ -13,4 +13,5 @@ class ScanRequest(BaseModel):
 class ScanContext(ScanRequest):
     baseline_commit: str | None = None
     review_llm_enabled: bool = False
+    debug: bool = False
     engine_selection: dict[str, str] = Field(default_factory=dict)

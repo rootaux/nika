@@ -262,6 +262,7 @@ def findPathsBatch(
                         // Find which candidate's method is the sink
                         var sinkFullName: Option[String] = None
                         var callNode: Option[Call] = None
+                        var sinkCallNodeCount: Int = 0
 
                         // BFS pre-filter: check if ANY candidate sink method is reachable
                         val reachSet = bfsReachableSet(source)
@@ -291,6 +292,11 @@ def findPathsBatch(
                                             })
                                         }
                                     if (reachable) {
+                                        // Count the call nodes on the shortest data-flow path between the source and the sink.
+                                        val bestFlow = flows.l.minBy(_.elements.size)
+                                        sinkCallNodeCount = bestFlow.elements.collect {
+                                            case c: Call => c
+                                        }.size
                                         sinkFullName = Some(cand.method.fullName)
                                         callNode = Some(cand)
                                     }
@@ -358,7 +364,7 @@ def findPathsBatch(
 
                                     if (results.nonEmpty) {
                                         val pathJson = results.mkString("[", ",", "]")
-                                        val entryJson = s"""{"source":"${esc(sourceFullName)}","lineNumber":$lineNumber,"fileName":"${esc(fileName)}","path":$pathJson}"""
+                                        val entryJson = s"""{"source":"${esc(sourceFullName)}","lineNumber":$lineNumber,"fileName":"${esc(fileName)}","callNodeCount":$sinkCallNodeCount,"path":$pathJson}"""
                                         allResults.append(entryJson)
                                     }
                                 }

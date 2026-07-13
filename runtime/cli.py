@@ -17,4 +17,5 @@ def build_scan_context(
         enabled_vulnerabilities=enabled_vulnerabilities,
         engine_selection=engine_selection,
         review_llm_enabled=review_llm_enabled,
+        debug=getattr(args, "debug", False),
     )
