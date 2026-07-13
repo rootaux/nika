@@ -187,9 +187,25 @@ class NikaApplicationRuntime:
             total_time_taken=self._format_duration(elapsed_seconds),
         )
         debug_metadata = None
+        if getattr(request, "debug", False):
+            extensions = _LANGUAGE_SOURCE_EXTENSIONS.get(request.language, [])
+            loc_stats = count_lines_of_code(request.path, extensions)
+            debug_metadata = {
+                "scanPath": request.path,
+                "language": request.language,
+                "totalTimeSeconds": round(elapsed_seconds, 2),
+                "totalSourcesFound": run_stats.total_sources if run_stats is not None else 0,
+                "enabledVulnerabilities": list(request.enabled_vulnerabilities),
+                **loc_stats,
+            }
+        ReportGenerator(
+            report_input,
+            report_state,
+            scan_type="FullScan",
             degraded_findings=degraded_findings,
             owasp_category_map=owasp_category_map,
             debug_metadata=debug_metadata,
+        ).generate_report(
             output_path=request.output
         )
         self._log_scan_summary(request, findings, elapsed_seconds)

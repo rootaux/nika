@@ -51,6 +51,13 @@ Examples:
     )
 
     parser.add_argument(
+        "--debug",
+        action="store_true",
+        default=False,
+        help="Include extra diagnostic metadata (lines of code, call node counts, etc.) in the JSON report",
+    )
+
+    parser.add_argument(
         "--inference-jar-paths",
         nargs="+",
         default=None,

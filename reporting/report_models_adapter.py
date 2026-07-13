@@ -45,6 +45,7 @@ def _to_legacy_vulnerability(finding):
         filename=finding.file_path,
         class_api_path=metadata.get("class_api_path") or None,
         method_api_path=metadata.get("method_api_path") or None,
+        call_node_count=getattr(finding, "call_node_count", None),
         metadata=metadata,
     )
 
@@ -67,22 +68,22 @@ def _apply_vulnerability_metadata(entries, vulnerability_metadata=None):
     return entries
 
 
-def _degraded_to_legacy_vulnerability(degraded: DegradedFinding) -> Vulnerability:
-    analysis = LLMVulnerabilityOutput(
-        vulnerable_status="ENGINE_FAILURE",
-        explanation=degraded.reason,
-        remediation="Manual review required — engine failure prevented analysis.",
-        code_fix="",
-    )
-    return Vulnerability(
-        sink="",
-        call_path="",
-        analysis=analysis,
-        call_graph=[],
-        line_number=0,
-        line_number_end=0,
-        filename="",
-    )
+def collect_degraded_findings(findings, vulnerability_metadata=None):
+    """Build serializable entries for findings that could not complete due to engine failures."""
+    vulnerability_metadata = vulnerability_metadata or {}
+    degraded = []
+    for finding in findings:
+        if not isinstance(finding, DegradedFinding):
+            continue
+        metadata = vulnerability_metadata.get(finding.vulnerability_id)
+        degraded.append(
+            {
+                "vulnerability": finding.vulnerability_id,
+                "title": getattr(metadata, "title", finding.vulnerability_id),
+                "reason": finding.reason,
+            }
+        )
+    return degraded
 
 
 def group_findings_for_legacy_report(findings, vulnerability_metadata=None):
@@ -90,13 +91,10 @@ def group_findings_for_legacy_report(findings, vulnerability_metadata=None):
 
     for finding in findings:
         if isinstance(finding, DegradedFinding):
-            grouped.setdefault(finding.vulnerability_id, []).append(
-                _degraded_to_legacy_vulnerability(finding)
-            )
-        else:
-            grouped.setdefault(finding.vulnerability_id, []).append(
-                _to_legacy_vulnerability(finding)
-            )
+            continue
+        grouped.setdefault(finding.vulnerability_id, []).append(
+            _to_legacy_vulnerability(finding)
+        )
 
     return _apply_vulnerability_metadata(
         [

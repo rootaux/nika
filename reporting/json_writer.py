@@ -87,16 +87,55 @@ class JsonReportWriter:
                         for node in v.call_graph
                     ]
 
+                if debug_enabled:
+                    call_node_count = v.call_node_count
+                    if call_node_count is None:
+                        call_node_count = len(v.call_graph or [])
+                    total_call_nodes += call_node_count
+
+                    total_trace_loc = 0
+                    for node_data, node in zip(finding_data.get("callGraph", []), v.call_graph or []):
+                        start = node.method_line_number_start
+                        end = node.method_line_number_end
+                        loc = (end - start + 1) if (start and end and end >= start) else None
+                        if loc is not None:
+                            total_trace_loc += loc
+                        node_data["debug"] = {
+                            "linesOfCode": loc,
+                        }
+
+                    finding_data["debug"] = {
+                        "callNodesBetweenSourceAndSink": call_node_count,
+                        "totalTraceLinesOfCode": total_trace_loc,
+                    }
+
                 vulnerable_findings.append(finding_data)
+
+        degraded_findings = degraded_findings or []
 
         report = {
             "reportType": "SAST",
             "totalVulnerableFindings": len(vulnerable_findings),
+            "owaspCategoryMap": owasp_category_map,
             "findings": vulnerable_findings,
+            "degradedFindings": degraded_findings,
         }
+
+        if debug_enabled:
+            report["debug"] = {
+                **debug_metadata,
+                "totalReportedFindings": len(vulnerable_findings),
+                "totalDegradedFindings": len(degraded_findings),
+                "totalCallNodes": total_call_nodes,
+            }
 
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(report, f, indent=2)
 
-        logging.info("JSON report generated at %s with %d vulnerable findings", output_path, len(vulnerable_findings))
+        logging.info(
+            "JSON report generated at %s with %d vulnerable findings and %d degraded findings",
+            output_path,
+            len(vulnerable_findings),
+            len(degraded_findings),
+        )
         return output_path
