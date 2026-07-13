@@ -8,9 +8,12 @@ from schema.vulnerability_schema import Vulnerabilities
 class JsonReportWriter:
     """Generates JSON reports containing only VULNERABLE or NEED_MANUAL_REVIEW findings."""
 
-    def generate(self, findings: list, output_path: str = "report.json") -> str:
+    def generate(self, findings: list, output_path: str = "report.json", degraded_findings: list | None = None, owasp_category_map: dict | None = None, debug_metadata: dict | None = None) -> str:
         vulnerable_findings = []
         seen_findings: set = set()
+        owasp_category_map = owasp_category_map or {}
+        debug_enabled = debug_metadata is not None
+        total_call_nodes = 0
 
         for entry in findings:
             vuln_name = entry.get("VULNERABILITY_TITLE", entry.get("vulnerability", "Unknown"))
@@ -29,7 +32,7 @@ class JsonReportWriter:
                 else:
                     status = "VULNERABLE"
 
-                if status.strip().upper() not in ("VULNERABLE", "NEED_MANUAL_REVIEW", "ENGINE_FAILURE"):
+                if status.strip().upper() not in ("VULNERABLE", "NEED_MANUAL_REVIEW"):
                     continue
 
                 dedup_key = (
@@ -46,6 +49,7 @@ class JsonReportWriter:
                 finding_data = {
                     "vulnerability": vuln_name,
                     "description": vuln_description,
+                    "owaspCategory": owasp_category_map.get(vuln_name, ""),
                     "status": status,
                     "sink": v.sink,
                     "filename": v.filename,
