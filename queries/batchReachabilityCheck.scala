@@ -279,21 +279,20 @@ def findPathsBatch(
                             for (cand <- reachableCandidates if sinkFullName.isEmpty) {
                                 try {
                                     val sinkArgCand = cand.argument
+                                    val flows =
+                                        if (sourceTaintParams.isEmpty) List.empty
+                                        else sinkArgCand.reachableByFlows(sourceTaintParams).l
                                     // Sanitized when every flow passes a sanitizer; report only
                                     // if at least one clean (unsanitized) path reaches the sink.
-                                    val reachable =
-                                        if (sourceTaintParams.isEmpty) false
-                                        else {
-                                            val flows = sinkArgCand.reachableByFlows(sourceTaintParams)
-                                            if (sanitizers.isEmpty) flows.nonEmpty
-                                            else flows.exists(p => !p.elements.exists {
-                                                case c: Call => isSanitizerCall(c)
-                                                case _ => false
-                                            })
-                                        }
-                                    if (reachable) {
+                                    val cleanFlows =
+                                        if (sanitizers.isEmpty) flows
+                                        else flows.filter(p => !p.elements.exists {
+                                            case c: Call => isSanitizerCall(c)
+                                            case _ => false
+                                        })
+                                    if (cleanFlows.nonEmpty) {
                                         // Count the call nodes on the shortest data-flow path between the source and the sink.
-                                        val bestFlow = flows.l.minBy(_.elements.size)
+                                        val bestFlow = cleanFlows.minBy(_.elements.size)
                                         sinkCallNodeCount = bestFlow.elements.collect {
                                             case c: Call => c
                                         }.size
