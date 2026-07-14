@@ -13,7 +13,9 @@ aggressiveScan: false
 
 excludeSourceArgs:
   annotations: []
-  types: []
+  types:
+    - HttpServletResponse
+    - ServletResponse
 
 vulnerabilityConfig:
    - command_injection
